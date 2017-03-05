@@ -9,13 +9,13 @@ using namespace std;
 class Player {
 
 public:
-    Player(Side side);
+    Player(Side color);
     ~Player();
 
     Move *doMove(Move *opponentsMove, int msLeft);
 
     // Flag to tell if the player is running within the test_minimax context
-    bool testingMinimax;
+    bool minimaxTest;
 };
 
 #endif

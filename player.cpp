@@ -7,7 +7,7 @@
  */
 Player::Player(Side color) {
     // Will be set to true in test_minimax.cpp.
-    testingMinimax = false;
+    minimaxTest = false;
 
     /*
      * TODO: Do any initialization you need to do here (setting up the board,
