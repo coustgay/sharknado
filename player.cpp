@@ -51,20 +51,21 @@ Move *Player::doMove(Move *opponentsMove, int msLeft) {
     fprintf(stderr, "Completed opponent's move~\n");
 
     // find all of the valid moves
-    std::vector<Move> valid_moves; Move *move;
+    std::vector<Move *> valid_moves;
+    Move *move;
     for (int i = 0; i < 8; i++){
         for (int j = 0; j < 8; j++){
-            move.setX(i); move.setY(j);
-            if (board.checkMove(&move, side)) valid_moves.push_back(move);
+            move->setX(i); move->setY(j);
+            if (board.checkMove(move, side)) valid_moves.push_back(move);
         }
     }
 
-    // in case there arent valid moves, this is faster than using their method 
+    // in case there arent valid moves, this is faster than using their method
     // to check first b/c we don't have to iterate through the whole board again
     if (valid_moves.size() <= 0) return nullptr;
 
     // find the best choice (basic heuristic) ~ update with minimax later
-    Board *next_board = board->copy(); int best_score = -64; 
+    Board *next_board = board->copy(); int best_score = -64;
     Move best_move; int next_score;
     for (unsigned int i = 0; i < valid_moves.size(); i++){
         next_board->doMove(valid_moves[i], side);
