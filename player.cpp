@@ -53,7 +53,8 @@ Move *Player::doMove(Move *opponentsMove, int msLeft) {
     if (side == BLACK){
         board->doMove(opponentsMove, WHITE);
     } else {board->doMove(opponentsMove, BLACK);}
-    fprintf(stderr, "Completed opponent's move~\n");
+    fprintf(stderr, "Completed opponent's move at %d %d\n", 
+            opponentsMove->getX(), opponentsMove->getY());
 
     //--------------find moves------------------//
 
@@ -72,7 +73,7 @@ Move *Player::doMove(Move *opponentsMove, int msLeft) {
         }
     }
 
-    //--------------base cases-------------//
+    //--------------base case-------------//
 
     // in case there arent valid moves, this is faster than using their method
     // to check first b/c we don't have to iterate through the whole board again
