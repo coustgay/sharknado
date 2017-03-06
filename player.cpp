@@ -49,13 +49,13 @@ Move *Player::doMove(Move *opponentsMove, int msLeft) {
      */
 
     // update opponent's move into internal board state
-    fprintf(stderr, "preparing to do opponents move\n");
-    if (side == BLACK){
-        board->doMove(opponentsMove, WHITE);
-    } else {board->doMove(opponentsMove, BLACK);}
-    fprintf(stderr, "Completed opponent's move at %d %d\n", 
-            opponentsMove->getX(), opponentsMove->getY());
-
+    if (opponentsMove != nullptr){
+        if (side == BLACK){
+            board->doMove(opponentsMove, WHITE);
+        } else {board->doMove(opponentsMove, BLACK);}
+        fprintf(stderr, "Completed opponent's move at %d %d\n", 
+                opponentsMove->getX(), opponentsMove->getY());
+    }
     //--------------find moves------------------//
 
     std::vector<Move> valid_moves;
@@ -109,6 +109,11 @@ Move *Player::doMove(Move *opponentsMove, int msLeft) {
         }
     }
 
+    // decided on best move! put it in a pointer to be passed
     Move *final_move = new Move(best_move.getX(), best_move.getY());
+    fprintf(stderr, "chose move: %d %d\n", best_move.getX(), best_move.getY());
+
+    //before we return, update the board with our move
+    board->doMove(final_move, side);
     return final_move;
 }
