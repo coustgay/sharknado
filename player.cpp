@@ -15,10 +15,15 @@ Player::Player(Side color) {
      * 30 seconds.
      */
 
-    fprintf(stderr, "help meeeeee\n" );
     board = new Board();
     side = color;
-    fprintf(stderr, "help meeeeee\n" );
+    std::string side_s;
+    if (side == WHITE) {
+        side_s = "White";
+    } else {
+        side_s = "Black";
+    }
+    fprintf(stderr, "sharknado is on side: %s\n", side_s.c_str());
 }
 
 /*
@@ -50,17 +55,23 @@ Move *Player::doMove(Move *opponentsMove, int msLeft) {
 
     // update opponent's move into internal board state
     if (opponentsMove != nullptr){
+        Side opp_side;
         if (side == BLACK){
-            board->doMove(opponentsMove, WHITE);
-        } else {board->doMove(opponentsMove, BLACK);}
-        fprintf(stderr, "Completed opponent's move at %d %d\n", 
-                opponentsMove->getX(), opponentsMove->getY());
+            opp_side = WHITE;
+        } else {
+            opp_side = BLACK;
+        }
+
+        board->doMove(opponentsMove, opp_side);
+        fprintf(stderr, "Completed %d's move at %d %d\n", 
+                opp_side, opponentsMove->getX(), opponentsMove->getY());
     }
+
     //--------------find moves------------------//
 
     std::vector<Move> valid_moves;
     Move move(0,0);
-    fprintf(stderr, "checking moves: \n");
+    //fprintf(stderr, "checking for valid moves: \n");
 
     // check the whole board (can make more efficient later)
     for (int i = 0; i < 8; i++){
@@ -68,7 +79,7 @@ Move *Player::doMove(Move *opponentsMove, int msLeft) {
             move.setX(i); move.setY(j);
             if (board->checkMove(&move, side)) {
                 valid_moves.push_back(move);
-                fprintf(stderr, "%d %d works!\n", i, j);
+                //fprintf(stderr, "%d %d works!\n", i, j);
             }
         }
     }
@@ -99,8 +110,8 @@ Move *Player::doMove(Move *opponentsMove, int msLeft) {
         next_score = next_board->count(side);
 
         // sanity check
-        fprintf(stderr, "Investigating %d %d ... score: %d\n", next_move.getX(), 
-                next_move.getY(), next_score);
+        //fprintf(stderr, "Investigating %d %d ... score: %d\n", 
+        //        next_move.getX(), next_move.getY(), next_score);
 
         // check if we should use the current choice instead of our previous
         if (next_score > best_score){
@@ -111,7 +122,8 @@ Move *Player::doMove(Move *opponentsMove, int msLeft) {
 
     // decided on best move! put it in a pointer to be passed
     Move *final_move = new Move(best_move.getX(), best_move.getY());
-    fprintf(stderr, "chose move: %d %d\n", best_move.getX(), best_move.getY());
+    fprintf(stderr, "Completing %d's move: %d %d\n", 
+            side, best_move.getX(), best_move.getY());
 
     //before we return, update the board with our move
     board->doMove(final_move, side);
