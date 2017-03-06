@@ -32,7 +32,7 @@ int main(int argc, char *argv[]) {
      * example state.
      */
 
-    player->board = board.copy();
+    player->board = board->copy();
 
 
     // Get player's move and check if it's right.
