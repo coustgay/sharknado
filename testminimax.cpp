@@ -32,6 +32,9 @@ int main(int argc, char *argv[]) {
      * example state.
      */
 
+    player->board = board.copy();
+
+
     // Get player's move and check if it's right.
     Move *move = player->doMove(nullptr, 0);
 
