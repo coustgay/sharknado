@@ -15,7 +15,7 @@ public:
 
     Board *board;
     Side side;
-
+    std::vector<Move> past_moves;
     Move *doMove(Move *opponentsMove, int msLeft);
 
     // Flag to tell if the player is running within the test_minimax context

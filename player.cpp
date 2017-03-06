@@ -63,7 +63,7 @@ Move *Player::doMove(Move *opponentsMove, int msLeft) {
         }
 
         board->doMove(opponentsMove, opp_side);
-        fprintf(stderr, "Completed %d's move at %d %d\n", 
+        fprintf(stderr, "Completed %d's move at %d %d\n",
                 opp_side, opponentsMove->getX(), opponentsMove->getY());
     }
 
@@ -88,16 +88,16 @@ Move *Player::doMove(Move *opponentsMove, int msLeft) {
 
     // in case there arent valid moves, this is faster than using their method
     // to check first b/c we don't have to iterate through the whole board again
-    if (valid_moves.size() <= 0)        
+    if (valid_moves.size() <= 0)
         return nullptr;
 
     //--------------choosing moves-------------//
 
     // make variables for testing moves. everything is a pointer except scores
-    Board *next_board; 
+    Board *next_board;
     Move next_move(0,0);
     Move best_move = valid_moves[0];
-    int best_score = -64;  
+    int best_score = -64;
     int next_score;
 
     // find the naive best choice (basic heuristic) ~ update with minimax later
@@ -110,7 +110,7 @@ Move *Player::doMove(Move *opponentsMove, int msLeft) {
         next_score = next_board->count(side);
 
         // sanity check
-        //fprintf(stderr, "Investigating %d %d ... score: %d\n", 
+        //fprintf(stderr, "Investigating %d %d ... score: %d\n",
         //        next_move.getX(), next_move.getY(), next_score);
 
         // check if we should use the current choice instead of our previous
@@ -122,10 +122,11 @@ Move *Player::doMove(Move *opponentsMove, int msLeft) {
 
     // decided on best move! put it in a pointer to be passed
     Move *final_move = new Move(best_move.getX(), best_move.getY());
-    fprintf(stderr, "Completing %d's move: %d %d\n", 
+    fprintf(stderr, "Completing %d's move: %d %d\n",
             side, best_move.getX(), best_move.getY());
 
     //before we return, update the board with our move
     board->doMove(final_move, side);
+    past_moves.push_back(*final_move);
     return final_move;
 }
