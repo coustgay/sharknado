@@ -47,7 +47,7 @@ Move *Player::doMove(Move *opponentsMove, int msLeft) {
      */
 
     // update opponent's move into internal board state
-    board.doMove(opponentsMove, !side);
+    board->doMove(opponentsMove, !side);
     fprintf(stderr, "Completed opponent's move~\n");
 
     // find all of the valid moves
@@ -64,11 +64,11 @@ Move *Player::doMove(Move *opponentsMove, int msLeft) {
     if (valid_moves.size() <= 0) return nullptr;
 
     // find the best choice (basic heuristic) ~ update with minimax later
-    Board *next_board = board.copy(); int best_score = -64; 
-    Move *best_move; int next_score;
+    Board *next_board = board->copy(); int best_score = -64; 
+    Move best_move; int next_score;
     for (unsigned int i = 0; i < valid_moves.size(); i++){
-        next_board.doMove(valid_moves[i], side);
-        next_score = next_board.count(side);
+        next_board->doMove(valid_moves[i], side);
+        next_score = next_board->count(side);
         if (next_score > best_score){
             best_move = valid_moves[i];
             best_score = next_score;
