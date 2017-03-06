@@ -39,17 +39,42 @@ Player::~Player() {
  * return nullptr.
  */
 Move *Player::doMove(Move *opponentsMove, int msLeft) {
+    // just interested in the timer, I don't think we have to worry about it this week
+    // std::time_t end_turn = std::time(nullptr) + (time_t) (msLeft / 1000);
     /*
      * TODO: Implement how moves your AI should play here. You should first
      * process the opponent's opponents move before calculating your own move
      */
 
     board.doMove(opponentsMove, !side);
-    move *best_move = nullptr;
+    fprintf(stderr, "Completed opponent's move~\n");
+    Move *best_move = nullptr; int last_computation = 0;
 
-    while (msLeft > 0){
-        
+    // find all of the valid moves
+    std::vector<Move> valid_moves;
+    for (int i = 0; i < 8; i++){
+        for (int j = 0; j < 8; j++){
+            Move move(i,j);
+            if (board.checkMove(&move, side)) valid_moves.push_back(move);
+        }
     }
+
+    // in case there arent valid moves, this is faster than using their method 
+    // to check first b/c we don't have to iterate through the whole board again
+    if (valid_moves.size() <= 0) return nullptr;
+
+    
+
+/*    if (msLeft > 0){
+        while (msLeft > 0){
+            std::time_t now = std::time(nullptr);
+            if (now + (time_t) last_computation = )
+    
+        }
+
+    } else {
+
+    }*/
 
     return best_move;
 }
