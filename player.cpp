@@ -47,7 +47,7 @@ Move *Player::doMove(Move *opponentsMove, int msLeft) {
      */
 
     // update opponent's move into internal board state
-    board->doMove(opponentsMove, !side);
+    board->doMove(opponentsMove, side);
     fprintf(stderr, "Completed opponent's move~\n");
 
     // find all of the valid moves
