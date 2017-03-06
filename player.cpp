@@ -56,7 +56,7 @@ Move *Player::doMove(Move *opponentsMove, int msLeft) {
     for (int i = 0; i < 8; i++){
         for (int j = 0; j < 8; j++){
             move->setX(i); move->setY(j);
-            if (board.checkMove(move, side)) valid_moves.push_back(move);
+            if (board->checkMove(move, side)) valid_moves.push_back(move);
         }
     }
 
