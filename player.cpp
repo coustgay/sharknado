@@ -66,7 +66,8 @@ Move *Player::doMove(Move *opponentsMove, int msLeft) {
 
     // find the best choice (basic heuristic) ~ update with minimax later
     Board *next_board = board->copy(); int best_score = -64;
-    Move best_move; int next_score;
+    Move *best_move;
+    int next_score;
     for (unsigned int i = 0; i < valid_moves.size(); i++){
         next_board->doMove(valid_moves[i], side);
         next_score = next_board->count(side);
