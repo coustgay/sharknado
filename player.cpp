@@ -15,8 +15,10 @@ Player::Player(Side color) {
      * 30 seconds.
      */
 
+    fprintf(stderr, "help meeeeee\n" );
     board = new Board();
     side = color;
+    fprintf(stderr, "help meeeeee\n" );
 }
 
 /*
@@ -43,10 +45,11 @@ Move *Player::doMove(Move *opponentsMove, int msLeft) {
     // std::time_t end_turn = std::time(nullptr) + (time_t) (msLeft / 1000);
     /*
      * TODO: Implement how moves your AI should play here. You should first
-     * process the opponent's opponents move before calculating your own move
+     * process the opponent's opponentsMove before calculating your own move
      */
 
     // update opponent's move into internal board state
+    fprintf(stderr, "preparing to do opponents move\n");
     if (side == BLACK){
         board->doMove(opponentsMove, WHITE);
     } else {board->doMove(opponentsMove, BLACK);}
@@ -55,17 +58,15 @@ Move *Player::doMove(Move *opponentsMove, int msLeft) {
     //--------------find moves------------------//
 
     std::vector<Move> valid_moves;
-    Move *move = new Move(0,0);
+    Move move(0,0);
     fprintf(stderr, "checking moves: \n");
 
     // check the whole board (can make more efficient later)
     for (int i = 0; i < 8; i++){
         for (int j = 0; j < 8; j++){
-            move->setX(i); move->setY(j);
-            if (board->checkMove(move, side)) {
-                // using moves instead of pointers in the vector because of errors
-                Move *valid = new Move(i,j);
-                valid_moves.push_back(*valid);
+            move.setX(i); move.setY(j);
+            if (board->checkMove(&move, side)) {
+                valid_moves.push_back(move);
                 fprintf(stderr, "%d %d works!\n", i, j);
             }
         }
@@ -75,36 +76,38 @@ Move *Player::doMove(Move *opponentsMove, int msLeft) {
 
     // in case there arent valid moves, this is faster than using their method
     // to check first b/c we don't have to iterate through the whole board again
-    if (valid_moves.size() <= 0) {return nullptr;}
-    // if there's only one choice, do it
-    if (valid_moves.size() == 1) {return &valid_moves[0];}
+    if (valid_moves.size() <= 0)        
+        return nullptr;
 
     //--------------choosing moves-------------//
 
     // make variables for testing moves. everything is a pointer except scores
-    Board *next_board = board->copy(); Move *next_move = &valid_moves[0];
-    Move *best_move; int best_score = -64;  int next_score;
+    Board *next_board; 
+    Move next_move(0,0);
+    Move best_move = valid_moves[0];
+    int best_score = -64;  
+    int next_score;
 
     // find the naive best choice (basic heuristic) ~ update with minimax later
     for (unsigned int k = 0; k < valid_moves.size(); k++){
 
         // for each valid move, initialize our variables
-        next_move = &valid_moves[k];
-        next_board->doMove(next_move, side);
+        next_board = board->copy();
+        next_move = valid_moves[k];
+        next_board->doMove(&next_move, side);
         next_score = next_board->count(side);
 
         // sanity check
-        fprintf(stderr, "Investigating %d %d ...\n", 
-                next_move->getX(), next_move->getY());
+        fprintf(stderr, "Investigating %d %d ... score: %d\n", next_move.getX(), 
+                next_move.getY(), next_score);
 
         // check if we should use the current choice instead of our previous
-        if (next_score >= best_score){
-            delete best_move;
+        if (next_score > best_score){
             best_move = next_move;
             best_score = next_score;
-        } else {
-            delete next_move;
         }
     }
-    return best_move;
+
+    Move *final_move = new Move(best_move.getX(), best_move.getY());
+    return final_move;
 }
