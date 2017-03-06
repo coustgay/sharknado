@@ -47,33 +47,63 @@ Move *Player::doMove(Move *opponentsMove, int msLeft) {
      */
 
     // update opponent's move into internal board state
-    board->doMove(opponentsMove, side);
+    if (side == BLACK){
+        board->doMove(opponentsMove, WHITE);
+    } else {board->doMove(opponentsMove, BLACK);}
     fprintf(stderr, "Completed opponent's move~\n");
 
-    // find all of the valid moves
-    std::vector<Move *> valid_moves;
-    Move *move;
+    //--------------find moves------------------//
+
+    std::vector<Move> valid_moves;
+    Move *move = new Move(0,0);
+    fprintf(stderr, "checking moves: \n");
+
+    // check the whole board (can make more efficient later)
     for (int i = 0; i < 8; i++){
         for (int j = 0; j < 8; j++){
             move->setX(i); move->setY(j);
-            if (board->checkMove(move, side)) valid_moves.push_back(move);
+            if (board->checkMove(move, side)) {
+                // using moves instead of pointers in the vector because of errors
+                Move *valid = new Move(i,j);
+                valid_moves.push_back(*valid);
+                fprintf(stderr, "%d %d works!\n", i, j);
+            }
         }
     }
 
+    //--------------base cases-------------//
+
     // in case there arent valid moves, this is faster than using their method
     // to check first b/c we don't have to iterate through the whole board again
-    if (valid_moves.size() <= 0) return nullptr;
+    if (valid_moves.size() <= 0) {return nullptr;}
+    // if there's only one choice, do it
+    if (valid_moves.size() == 1) {return &valid_moves[0];}
 
-    // find the best choice (basic heuristic) ~ update with minimax later
-    Board *next_board = board->copy(); int best_score = -64;
-    Move *best_move;
-    int next_score;
-    for (unsigned int i = 0; i < valid_moves.size(); i++){
-        next_board->doMove(valid_moves[i], side);
+    //--------------choosing moves-------------//
+
+    // make variables for testing moves. everything is a pointer except scores
+    Board *next_board = board->copy(); Move *next_move = &valid_moves[0];
+    Move *best_move; int best_score = -64;  int next_score;
+
+    // find the naive best choice (basic heuristic) ~ update with minimax later
+    for (unsigned int k = 0; k < valid_moves.size(); k++){
+
+        // for each valid move, initialize our variables
+        next_move = &valid_moves[k];
+        next_board->doMove(next_move, side);
         next_score = next_board->count(side);
-        if (next_score > best_score){
-            best_move = valid_moves[i];
+
+        // sanity check
+        fprintf(stderr, "Investigating %d %d ...\n", 
+                next_move->getX(), next_move->getY());
+
+        // check if we should use the current choice instead of our previous
+        if (next_score >= best_score){
+            delete best_move;
+            best_move = next_move;
             best_score = next_score;
+        } else {
+            delete next_move;
         }
     }
     return best_move;
