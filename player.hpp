@@ -12,7 +12,7 @@ public:
     Player(Side color);
     ~Player();
 
-    Board board;
+    Board *board;
     Side side;
 
     Move *doMove(Move *opponentsMove, int msLeft);
