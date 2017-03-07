@@ -119,7 +119,6 @@ Move *Player::doMove(Move *opponentsMove, int msLeft) {
     if (valid_moves.size() <= 0)
         return nullptr;
 
-    //--------------choosing moves-------------//
 
     // make variables for testing moves. everything is a pointer except scores
     Board *next_board;
@@ -128,27 +127,63 @@ Move *Player::doMove(Move *opponentsMove, int msLeft) {
     int best_score = -64;
     int next_score;
 
-    // find the naive best choice (basic heuristic) ~ update with minimax later
-    for (unsigned int k = 0; k < valid_moves.size(); k++){
+    //--------------choosing moves-------------//
+    // uses a 2-ply minimax decision tree and the naive heuristic for testing
+    if (minimaxTest)
+    {
+        for (unsigned int k = 0; k < valid_moves.size(); k++)
+        {
+            next_board = board->copy();
+            next_move = valid_moves[k];
+            next_board->doMove(&next_move, side);
+            next_score = next_board->count(side) - next_board->count(opp_side);
 
-        // for each valid move, initialize our variables
-        next_board = board->copy();
-        next_move = valid_moves[k];
-        next_board->doMove(&next_move, side);
-        next_score = next_board->count(side) - next_board->count(opp_side);
-
-        // sanity check
-        //fprintf(stderr, "Investigating %d %d ... score: %d\n",
-        //        next_move.getX(), next_move.getY(), next_score);
-
-        // check if we should use the current choice instead of our previous
-        if (next_score > best_score && 
-            next_move.getX() != 1 && next_move.getX() != 6 &&
-            next_move.getY() != 1 && next_move.getY() != 6){
-            best_move = next_move;
-            best_score = next_score;
+            // generating valid moves for first layer in
+            std::vector<Move> next_valid_moves;
+            Move move(0,0);
+            for (int i = 0; i < 8; i++){
+                for (int j = 0; j < 8; j++){
+                    move.setX(i); move.setY(j);
+                    if (next_board->checkMove(&move, opp_side)) {
+                        next_valid_moves.push_back(move);
+                    }
+                }
+            }
+            for (unsigned int i = 0; i < next_valid_moves.size(); i++)
+            {
+                int next_next_score;
+                next_next_score = next_board->count(opp_side) - next_board->count(side);
+                next_score += next_next_score;
+            }
         }
     }
+
+    // alternative to 2-ply minimax / naive heuristic (better heuristic?)
+    else
+    {
+        // find the naive best choice (basic heuristic) ~ update with minimax later
+        for (unsigned int k = 0; k < valid_moves.size(); k++){
+
+            // for each valid move, initialize our variables
+            next_board = board->copy();
+            next_move = valid_moves[k];
+            next_board->doMove(&next_move, side);
+            next_score = next_board->count(side) - next_board->count(opp_side);
+
+            // sanity check
+            //fprintf(stderr, "Investigating %d %d ... score: %d\n",
+            //        next_move.getX(), next_move.getY(), next_score);
+
+            // check if we should use the current choice instead of our previous
+            if (next_score > best_score &&
+                next_move.getX() != 1 && next_move.getX() != 6 &&
+                next_move.getY() != 1 && next_move.getY() != 6){
+                best_move = next_move;
+                best_score = next_score;
+            }
+        }
+    }
+
 
     //--------------finish using chosen move-------------//
 
