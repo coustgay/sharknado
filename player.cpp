@@ -84,6 +84,7 @@ Move *Player::doMove(Move *opponentsMove, int msLeft) {
         }
     }
 
+
     //--------------base case-------------//
 
     // in case there arent valid moves, this is faster than using their method
@@ -126,7 +127,7 @@ Move *Player::doMove(Move *opponentsMove, int msLeft) {
             side, best_move.getX(), best_move.getY());
 
     //before we return, update the board with our move
-    board->doMove(final_move, side);
     past_moves.push_back(*final_move);
+    board->doMove(final_move, side);
     return final_move;
 }
