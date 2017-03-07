@@ -148,6 +148,8 @@ Move *Player::doMove(Move *opponentsMove, int msLeft) {
         }
     }
 
+    //--------------finish using chosen move-------------//
+
     // decided on best move! put it in a pointer to be passed
     Move *final_move = new Move(best_move.getX(), best_move.getY());
     fprintf(stderr, "%s's move: %d %d\n",
