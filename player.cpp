@@ -17,7 +17,6 @@ Player::Player(Side color) {
 
     board = new Board();
     side = color;
-    std::string side_s;
     /**
     for (int q = -1; q < 2; q++) {
         for (int w = -1; w < 2; w++) {
@@ -26,12 +25,7 @@ Player::Player(Side color) {
             adjacents.push_back(adjacent);
         }
     } */
-    if (side == WHITE) {
-        side_s = "White";
-    } else {
-        side_s = "Black";
-    }
-    fprintf(stderr, "sharknado is on side: %s\n", side_s.c_str());
+    fprintf(stderr, "sharknado is on side: %s\n", print_side(color));
 }
 
 /*
@@ -73,8 +67,8 @@ Move *Player::doMove(Move *opponentsMove, int msLeft) {
         }
 
         board->doMove(opponentsMove, opp_side);
-        fprintf(stderr, "Completed %d's move at %d %d\n",
-                opp_side, opponentsMove->getX(), opponentsMove->getY());
+        fprintf(stderr, "Completed %s's move at %d %d\n",
+                print_side(opp_side), opponentsMove->getX(), opponentsMove->getY());
     }
 
     //--------------find moves------------------//
@@ -144,7 +138,7 @@ Move *Player::doMove(Move *opponentsMove, int msLeft) {
         next_board = board->copy();
         next_move = valid_moves[k];
         next_board->doMove(&next_move, side);
-        next_score = next_board->count(side);
+        next_score = next_board->count(side) - next_board->count(opp(side));
 
         // sanity check
         //fprintf(stderr, "Investigating %d %d ... score: %d\n",
@@ -159,8 +153,8 @@ Move *Player::doMove(Move *opponentsMove, int msLeft) {
 
     // decided on best move! put it in a pointer to be passed
     Move *final_move = new Move(best_move.getX(), best_move.getY());
-    fprintf(stderr, "Completing %d's move: %d %d\n",
-            side, best_move.getX(), best_move.getY());
+    fprintf(stderr, "Completing %s's move: %d %d\n",
+            print_side(side), best_move.getX(), best_move.getY());
 
     //before we return, update the board with our move
     past_moves.push_back(*final_move);
