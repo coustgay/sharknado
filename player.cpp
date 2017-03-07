@@ -25,6 +25,7 @@ Player::Player(Side color) {
             adjacents.push_back(adjacent);
         }
     } */
+    fprintf(stderr, "Sharknado is on color %s!\n", print_side(side));
 }
 
 /*
@@ -61,8 +62,10 @@ Move *Player::doMove(Move *opponentsMove, int msLeft) {
     if (opponentsMove != nullptr){
 
         board->doMove(opponentsMove, opp_side);
-        fprintf(stderr, "Completed %s's move at %d %d\n",
+        fprintf(stderr, "%s's move: %d %d\n",
                 print_side(opp_side), opponentsMove->getX(), opponentsMove->getY());
+    } else {
+        fprintf(stderr, "%s has no valid moves~\n", print_side(opp_side));
     }
 
     //--------------find moves------------------//
@@ -139,7 +142,7 @@ Move *Player::doMove(Move *opponentsMove, int msLeft) {
         //        next_move.getX(), next_move.getY(), next_score);
 
         // check if we should use the current choice instead of our previous
-        if (next_score < best_score){
+        if (next_score > best_score){
             best_move = next_move;
             best_score = next_score;
         }
@@ -147,8 +150,8 @@ Move *Player::doMove(Move *opponentsMove, int msLeft) {
 
     // decided on best move! put it in a pointer to be passed
     Move *final_move = new Move(best_move.getX(), best_move.getY());
-    fprintf(stderr, "Completing sharknado's move: %d %d\n",
-            best_move.getX(), best_move.getY());
+    fprintf(stderr, "%s's move: %d %d\n",
+            print_side(side), best_move.getX(), best_move.getY());
 
     //before we return, update the board with our move
     past_moves.push_back(*final_move);

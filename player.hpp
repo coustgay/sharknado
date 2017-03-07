@@ -22,10 +22,11 @@ public:
 
     // returns a string describing the input side object
     const char * print_side(Side side){
-        std::string color = "Black";
-        if (side == WHITE) {color = "White";
+        if (side == WHITE) {
+            return "White";
+        } else {
+            return "Black";
         }
-        return color.c_str();
     }
 
     // returns the opposing side from the one provided
