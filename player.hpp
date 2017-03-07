@@ -17,8 +17,13 @@ public:
     Board *board;
     Side side;
     Move *doMove(Move *opponentsMove, int msLeft);
+
+    // -------------- optimizing valid move finder --------- //
     std::vector<Move> past_moves;
     std::vector<Move> adjacents;
+    std::vector<Move> valid_moves(Board *board, Side side, bool eff);
+
+
 
     // returns a string describing the input side object
     const char * print_side(Side side){

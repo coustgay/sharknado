@@ -9,22 +9,18 @@ Player::Player(Side color) {
     // Will be set to true in test_minimax.cpp.
     minimaxTest = false;
 
-    /*
-     * TODO: Do any initialization you need to do here (setting up the board,
-     * precalculating things, etc.) However, remember that you will only have
-     * 30 seconds.
-     */
-
+    // initialize board and side
     board = new Board();
     side = color;
-    /**
+    
+    // prepare for quick way of finding valid moves
     for (int q = -1; q < 2; q++) {
         for (int w = -1; w < 2; w++) {
             Move adjacent(0,0);
             adjacent.setX(q); adjacent.setY(w);
             adjacents.push_back(adjacent);
         }
-    } */
+    }
     fprintf(stderr, "Sharknado is on color %s!\n", print_side(side));
 }
 
@@ -50,12 +46,6 @@ Player::~Player() {
  * return nullptr.
  */
 Move *Player::doMove(Move *opponentsMove, int msLeft) {
-    // just interested in the timer, I don't think we have to worry about it this week
-    // std::time_t end_turn = std::time(nullptr) + (time_t) (msLeft / 1000);
-    /*
-     * TODO: Implement how moves your AI should play here. You should first
-     * process the opponent's opponentsMove before calculating your own move
-     */
 
     // update opponent's move into internal board state
     Side opp_side = (Side) ((side + 1) % 2);
@@ -70,47 +60,7 @@ Move *Player::doMove(Move *opponentsMove, int msLeft) {
 
     //--------------find moves------------------//
 
-    std::vector<Move> valid_moves;
-    Move move(0,0);
-    //fprintf(stderr, "checking for valid moves: \n");
-
-    // check the whole board (can make more efficient later)
-    for (int i = 0; i < 8; i++){
-        for (int j = 0; j < 8; j++){
-            move.setX(i); move.setY(j);
-            if (board->checkMove(&move, side)) {
-                valid_moves.push_back(move);
-                //fprintf(stderr, "%d %d works!\n", i, j);
-            }
-        }
-    }
-
-    /** drafting alternative valid move checker; need to resolve going out of
-        range at boundaries
-    if (past_moves.size() < 1){
-        for (int i = 0; i < 8; i++){
-            for (int j = 0; j < 8; j++){
-                move.setX(i); move.setY(j);
-                valid_moves.push_back(move);
-            }
-        }
-    }
-
-    else {
-        for (unsigned int i = 0; i < past_moves.size(); i++)
-        {
-            for (unsigned int j = 0; j < adjacents.size(); j++)
-            {
-                move.setX(past_moves[i].getX() + adjacents[j].getX());
-                move.setY(past_moves[i].getY() + adjacents[j].getY());
-                if (board->checkMove(&move, side)) {
-                    valid_moves.push_back(move);
-                }
-            }
-        }
-    }
-    */
-
+    std::vector<Move> valid_moves = valid_moves(board, side, false);
 
     //--------------base case-------------//
 
@@ -139,16 +89,9 @@ Move *Player::doMove(Move *opponentsMove, int msLeft) {
             next_score = next_board->count(side) - next_board->count(opp_side);
 
             // generating valid moves for first layer in
-            std::vector<Move> next_valid_moves;
+            std::vector<Move> next_valid_moves = 
+                valid_moves(next_board, opp_side, false);
             Move move(0,0);
-            for (int i = 0; i < 8; i++){
-                for (int j = 0; j < 8; j++){
-                    move.setX(i); move.setY(j);
-                    if (next_board->checkMove(&move, opp_side)) {
-                        next_valid_moves.push_back(move);
-                    }
-                }
-            }
             for (unsigned int i = 0; i < next_valid_moves.size(); i++)
             {
                 Board *next_next_board = next_board->copy();
@@ -205,3 +148,56 @@ Move *Player::doMove(Move *opponentsMove, int msLeft) {
     board->doMove(final_move, side);
     return final_move;
 }
+
+/*
+ * @brief provides a list of valid moves
+ * 
+ *  @in board state to evaluate, side of player to make move 
+ *  eff == false uses basic method instead of fancy efficient method
+ *
+ */
+std::vector<Move> Player::valid_moves(Board *board, Side side, bool eff) {    
+    Move move(0,0); std::vector<Move> out;
+    if (eff){
+        // drafting alternative valid move checker; 
+        // need to resolve going out of range at boundaries
+        if (past_moves.size() < 1){
+            for (int i = 0; i < 8; i++){
+                for (int j = 0; j < 8; j++){
+                    move.setX(i); move.setY(j);
+                    out.push_back(move);
+                }
+            }
+        }
+        else {
+            for (unsigned int i = 0; i < past_moves.size(); i++)
+            {
+                for (unsigned int j = 0; j < adjacents.size(); j++)
+                {
+                    move.setX(past_moves[i].getX() + adjacents[j].getX());
+                    move.setY(past_moves[i].getY() + adjacents[j].getY());
+                    if (board->checkMove(&move, side)) {
+                        out.push_back(move);
+                    }
+                }
+            }
+        }
+        // simple method
+    } else {
+        //fprintf(stderr, "checking for valid moves: \n");
+        for (int i = 0; i < 8; i++){
+            for (int j = 0; j < 8; j++){
+                move.setX(i); move.setY(j);
+                if (board->checkMove(&move, side)) {
+                    out.push_back(move);
+                    //fprintf(stderr, "%d %d works!\n", i, j);
+                }
+            }
+        }
+    }
+    return out;
+}
+
+// ------- drafting timing calls -----------------//
+    // just interested in the timer, I don't think we have to worry about it this week
+    // std::time_t end_turn = std::time(nullptr) + (time_t) (msLeft / 1000);
