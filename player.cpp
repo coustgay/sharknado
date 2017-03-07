@@ -142,7 +142,9 @@ Move *Player::doMove(Move *opponentsMove, int msLeft) {
         //        next_move.getX(), next_move.getY(), next_score);
 
         // check if we should use the current choice instead of our previous
-        if (next_score > best_score){
+        if (next_score > best_score && 
+            next_move.getX() != 1 && next_move.getX() != 6 &&
+            next_move.getY() != 1 && next_move.getY() != 6){
             best_move = next_move;
             best_score = next_score;
         }
