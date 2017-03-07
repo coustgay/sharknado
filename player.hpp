@@ -5,6 +5,7 @@
 #include <vector>
 #include "common.hpp"
 #include "board.hpp"
+
 using namespace std;
 
 class Player {
@@ -17,6 +18,7 @@ public:
     Side side;
     Move *doMove(Move *opponentsMove, int msLeft);
     std::vector<Move> past_moves;
+    std::vector<Move> adjacents;
 
     // Flag to tell if the player is running within the test_minimax context
     bool minimaxTest;

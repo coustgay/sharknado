@@ -18,6 +18,14 @@ Player::Player(Side color) {
     board = new Board();
     side = color;
     std::string side_s;
+    /**
+    for (int q = -1; q < 2; q++) {
+        for (int w = -1; w < 2; w++) {
+            Move adjacent(0,0);
+            adjacent.setX(q); adjacent.setY(w);
+            adjacents.push_back(adjacent);
+        }
+    } */
     if (side == WHITE) {
         side_s = "White";
     } else {
@@ -31,6 +39,8 @@ Player::Player(Side color) {
  */
 Player::~Player() {
 }
+
+
 
 /*
  * Compute the next move given the opponent's last move. Your AI is
@@ -83,6 +93,32 @@ Move *Player::doMove(Move *opponentsMove, int msLeft) {
             }
         }
     }
+
+    /** drafting alternative valid move checker; need to resolve going out of
+        range at boundaries
+    if (past_moves.size() < 1){
+        for (int i = 0; i < 8; i++){
+            for (int j = 0; j < 8; j++){
+                move.setX(i); move.setY(j);
+                valid_moves.push_back(move);
+            }
+        }
+    }
+
+    else {
+        for (unsigned int i = 0; i < past_moves.size(); i++)
+        {
+            for (unsigned int j = 0; j < adjacents.size(); j++)
+            {
+                move.setX(past_moves[i].getX() + adjacents[j].getX());
+                move.setY(past_moves[i].getY() + adjacents[j].getY());
+                if (board->checkMove(&move, side)) {
+                    valid_moves.push_back(move);
+                }
+            }
+        }
+    }
+    */
 
 
     //--------------base case-------------//
