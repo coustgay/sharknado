@@ -151,9 +151,17 @@ Move *Player::doMove(Move *opponentsMove, int msLeft) {
             }
             for (unsigned int i = 0; i < next_valid_moves.size(); i++)
             {
-                int next_next_score;
-                next_next_score = next_board->count(opp_side) - next_board->count(side);
+                Board *next_next_board = next_board->copy();
+                Move next_next_move(0,0);
+                next_next_move = next_valid_moves[i];
+                next_next_board->doMove(&next_next_move, opp_side);
+                int next_next_score = next_board->count(opp_side) - next_board->count(side);
                 next_score += next_next_score;
+            }
+            if (next_score > best_score)
+            {
+                best_move = next_move;
+                best_score = next_score;
             }
         }
     }
