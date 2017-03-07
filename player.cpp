@@ -25,7 +25,6 @@ Player::Player(Side color) {
             adjacents.push_back(adjacent);
         }
     } */
-    fprintf(stderr, "sharknado is on side: %s\n", print_side(color));
 }
 
 /*
@@ -148,8 +147,8 @@ Move *Player::doMove(Move *opponentsMove, int msLeft) {
 
     // decided on best move! put it in a pointer to be passed
     Move *final_move = new Move(best_move.getX(), best_move.getY());
-    fprintf(stderr, "Completing %s's move: %d %d\n",
-            print_side(side), best_move.getX(), best_move.getY());
+    fprintf(stderr, "Completing sharknado's move: %d %d\n",
+            best_move.getX(), best_move.getY());
 
     //before we return, update the board with our move
     past_moves.push_back(*final_move);

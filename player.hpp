@@ -21,12 +21,11 @@ public:
     std::vector<Move> adjacents;
 
     // returns a string describing the input side object
-    std::string print_side(Side side){
-        if (side == WHITE) {
-            return "White";
-        } else {
-            return "Black";
+    const char * print_side(Side side){
+        std::string color = "Black";
+        if (side == WHITE) {color = "White";
         }
+        return color.c_str();
     }
 
     // returns the opposing side from the one provided
