@@ -18,6 +18,14 @@ Player::Player(Side color) {
     board = new Board();
     side = color;
     std::string side_s;
+    /**
+    for (int q = -1; q < 2; q++) {
+        for (int w = -1; w < 2; w++) {
+            Move adjacent(0,0);
+            adjacent.setX(q); adjacent.setY(w);
+            adjacents.push_back(adjacent);
+        }
+    } */
     if (side == WHITE) {
         side_s = "White";
     } else {
@@ -31,6 +39,8 @@ Player::Player(Side color) {
  */
 Player::~Player() {
 }
+
+
 
 /*
  * Compute the next move given the opponent's last move. Your AI is
@@ -63,7 +73,7 @@ Move *Player::doMove(Move *opponentsMove, int msLeft) {
         }
 
         board->doMove(opponentsMove, opp_side);
-        fprintf(stderr, "Completed %d's move at %d %d\n", 
+        fprintf(stderr, "Completed %d's move at %d %d\n",
                 opp_side, opponentsMove->getX(), opponentsMove->getY());
     }
 
@@ -84,20 +94,47 @@ Move *Player::doMove(Move *opponentsMove, int msLeft) {
         }
     }
 
+    /** drafting alternative valid move checker; need to resolve going out of
+        range at boundaries
+    if (past_moves.size() < 1){
+        for (int i = 0; i < 8; i++){
+            for (int j = 0; j < 8; j++){
+                move.setX(i); move.setY(j);
+                valid_moves.push_back(move);
+            }
+        }
+    }
+
+    else {
+        for (unsigned int i = 0; i < past_moves.size(); i++)
+        {
+            for (unsigned int j = 0; j < adjacents.size(); j++)
+            {
+                move.setX(past_moves[i].getX() + adjacents[j].getX());
+                move.setY(past_moves[i].getY() + adjacents[j].getY());
+                if (board->checkMove(&move, side)) {
+                    valid_moves.push_back(move);
+                }
+            }
+        }
+    }
+    */
+
+
     //--------------base case-------------//
 
     // in case there arent valid moves, this is faster than using their method
     // to check first b/c we don't have to iterate through the whole board again
-    if (valid_moves.size() <= 0)        
+    if (valid_moves.size() <= 0)
         return nullptr;
 
     //--------------choosing moves-------------//
 
     // make variables for testing moves. everything is a pointer except scores
-    Board *next_board; 
+    Board *next_board;
     Move next_move(0,0);
     Move best_move = valid_moves[0];
-    int best_score = -64;  
+    int best_score = -64;
     int next_score;
 
     // find the naive best choice (basic heuristic) ~ update with minimax later
@@ -110,7 +147,7 @@ Move *Player::doMove(Move *opponentsMove, int msLeft) {
         next_score = next_board->count(side);
 
         // sanity check
-        //fprintf(stderr, "Investigating %d %d ... score: %d\n", 
+        //fprintf(stderr, "Investigating %d %d ... score: %d\n",
         //        next_move.getX(), next_move.getY(), next_score);
 
         // check if we should use the current choice instead of our previous
@@ -122,10 +159,11 @@ Move *Player::doMove(Move *opponentsMove, int msLeft) {
 
     // decided on best move! put it in a pointer to be passed
     Move *final_move = new Move(best_move.getX(), best_move.getY());
-    fprintf(stderr, "Completing %d's move: %d %d\n", 
+    fprintf(stderr, "Completing %d's move: %d %d\n",
             side, best_move.getX(), best_move.getY());
 
     //before we return, update the board with our move
+    past_moves.push_back(*final_move);
     board->doMove(final_move, side);
     return final_move;
 }

@@ -5,6 +5,7 @@
 #include <vector>
 #include "common.hpp"
 #include "board.hpp"
+
 using namespace std;
 
 class Player {
@@ -15,8 +16,9 @@ public:
 
     Board *board;
     Side side;
-
     Move *doMove(Move *opponentsMove, int msLeft);
+    std::vector<Move> past_moves;
+    std::vector<Move> adjacents;
 
     std::string print_side(Side side){
         if (side == WHITE) {
