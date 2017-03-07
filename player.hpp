@@ -23,7 +23,8 @@ public:
     std::vector<Move> adjacents;
     std::vector<Move> valid_moves(Board *board, Side side, bool eff);
 
-
+    // -------------- optimizing move chooser -------------- //
+    Move choose_move(Board *board, Side side, std::vector<Move> valid_moves, int plys);
 
     // returns a string describing the input side object
     const char * print_side(Side side){
