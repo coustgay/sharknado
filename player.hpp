@@ -30,7 +30,8 @@ public:
     }
 
     // returns the opposing side from the one provided
-    Side opp(Side side) {return (Side) ((side + 1) % 2);}
+    // probably unnecessary if we just calculate it at the start
+    // Side opp(Side side) {return (Side) ((side + 1) % 2);}
 
     // Flag to tell if the player is running within the test_minimax context
     bool minimaxTest;

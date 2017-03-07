@@ -58,13 +58,8 @@ Move *Player::doMove(Move *opponentsMove, int msLeft) {
      */
 
     // update opponent's move into internal board state
+    Side opp_side = (Side) ((side + 1) % 2);
     if (opponentsMove != nullptr){
-        Side opp_side;
-        if (side == BLACK){
-            opp_side = WHITE;
-        } else {
-            opp_side = BLACK;
-        }
 
         board->doMove(opponentsMove, opp_side);
         fprintf(stderr, "Completed %s's move at %d %d\n",
@@ -138,7 +133,7 @@ Move *Player::doMove(Move *opponentsMove, int msLeft) {
         next_board = board->copy();
         next_move = valid_moves[k];
         next_board->doMove(&next_move, side);
-        next_score = next_board->count(side) - next_board->count(opp(side));
+        next_score = next_board->count(side) - next_board->count(opp_side);
 
         // sanity check
         //fprintf(stderr, "Investigating %d %d ... score: %d\n",
