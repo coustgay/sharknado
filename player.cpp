@@ -52,15 +52,16 @@ Move *Player::doMove(Move *opponentsMove, int msLeft) {
     if (opponentsMove != nullptr){
         board->doMove(opponentsMove, opp_side);
         past_moves.push_back(*opponentsMove);
-        //fprintf(stderr, "%s's move: %d %d\n",
-        //        print_side(opp_side), opponentsMove->getX(), opponentsMove->getY());
+        fprintf(stderr, "---------------------------------\n%s's move: %d %d\n",
+                print_side(opp_side), opponentsMove->getX(), opponentsMove->getY());
     } else {
-        //fprintf(stderr, "%s has no valid moves~\n", print_side(opp_side));
+        fprintf(stderr, "%s has no valid moves~\n", print_side(opp_side));
     }
 
     //--------------find moves------------------//
 
     std::vector<Move> valid_moves = this->valid_moves(board, side, false);
+    fprintf(stderr, "%s:%lu legal moves.\n", print_side(side), valid_moves.size());
 
     
     //--------------choosing moves-------------//
@@ -68,11 +69,12 @@ Move *Player::doMove(Move *opponentsMove, int msLeft) {
     Move *best_move = this->choose_move(board, side, valid_moves, 2);
 
     //--------------finish using chosen move-------------//
-    fprintf(stderr, "%s's move: %d %d\n",
-            print_side(side), best_move->getX(), best_move->getY());
-
+    if (best_move != nullptr){
+        fprintf(stderr, "%s's move: %d %d\n-----------------------------------\n",
+                print_side(side), best_move->getX(), best_move->getY());
+        past_moves.push_back(*best_move);
+    }
     //before we return, update the board with our move
-    past_moves.push_back(*best_move);
     board->doMove(best_move, side);
     return best_move;
 }
@@ -122,6 +124,7 @@ std::vector<Move> Player::valid_moves(Board *board, Side side, bool eff) {
             }
         }
     }
+    //fprintf(stderr, "%s has %lu options\n", print_side(side), out.size());
     return out;
 }
 
@@ -135,6 +138,11 @@ std::vector<Move> Player::valid_moves(Board *board, Side side, bool eff) {
  */
 Move *Player::choose_move(Board *board, Side side, std::vector<Move> valid_moves, int plys) {
 
+    // if the provided move vector is empty, we can't do anything
+    if (valid_moves.size() < 1) {
+        return nullptr;
+    }
+
     Side opp_side = (Side) ((side + 1) % 2);
     Board *next_board;
     Move next_move(0,0);
@@ -144,11 +152,6 @@ Move *Player::choose_move(Board *board, Side side, std::vector<Move> valid_moves
     int best_score = -64;
     int next_score;
 
-    // if the provided move vector is empty, we can't do anything
-    if (valid_moves.size() <= 0) {
-        return nullptr;
-    }
-
     // case where we have more layers to search - recurses deeper with plys-1
     if (plys > 1){
         for (unsigned int i = 0; i < valid_moves.size(); i++) {
@@ -156,6 +159,8 @@ Move *Player::choose_move(Board *board, Side side, std::vector<Move> valid_moves
             next_board = board->copy();
             next_move = valid_moves[i];
             next_board->doMove(&next_move, side);
+            //fprintf(stderr, "if %s tries %d %d\n", 
+            //        print_side(side), next_move.getX(), next_move.getY());
 
             // find opponent's likely counter move
             opp_moves = this->valid_moves(next_board, opp_side, false);
@@ -177,7 +182,7 @@ Move *Player::choose_move(Board *board, Side side, std::vector<Move> valid_moves
             }
 
             // decide if this option is better than any others
-            if (next_score > best_score) {
+            if (next_score >= best_score) {
                 best_move = next_move;
                 best_score = next_score;
             }
@@ -224,22 +229,20 @@ Move *Player::choose_move(Board *board, Side side, std::vector<Move> valid_moves
                 // for each valid move, initialize our variables
                 next_board = board->copy();
                 next_move = valid_moves[k];
-                int x = next_move.getX(); int y = next_move.getY();
+                //int x = next_move.getX(); int y = next_move.getY();
                 next_board->doMove(&next_move, side);
                 
                 // naieve heuristic
                 next_score = next_board->count(side) - next_board->count(opp_side);
 
-                // tune score based on meta strategy checks
+                /*// tune score based on meta strategy checks
                 if (x == y || x + y == 7){
                     if (x == 0 || x == 7){
                         next_score *= 10;
                     } else {
                         next_score *= 3;
                     }
-                }
-
-                //fprintf(stderr, "%d %d score: %d\n", x, y, next_score);
+                }*/
     
                 // check if we should use the current choice instead of our previous
                 if (next_score > best_score){
@@ -249,6 +252,8 @@ Move *Player::choose_move(Board *board, Side side, std::vector<Move> valid_moves
             }
         }
         Move *final_move = new Move(best_move.getX(), best_move.getY());
+        //fprintf(stderr, "%s would pick %d %d\n", 
+        //        print_side(side), best_move.getX(), best_move.getY());
         return final_move;
     }
 }
