@@ -47,44 +47,34 @@ Player::~Player() {
  */
 Move *Player::doMove(Move *opponentsMove, int msLeft) {
 
-    // update opponent's move into internal board state
+    // --------------- update opponent's move ----------------- //
     Side opp_side = (Side) ((side + 1) % 2);
     if (opponentsMove != nullptr){
-
         board->doMove(opponentsMove, opp_side);
         past_moves.push_back(*opponentsMove);
-        fprintf(stderr, "%s's move: %d %d\n",
-                print_side(opp_side), opponentsMove->getX(), opponentsMove->getY());
+        //fprintf(stderr, "%s's move: %d %d\n",
+        //        print_side(opp_side), opponentsMove->getX(), opponentsMove->getY());
     } else {
-        fprintf(stderr, "%s has no valid moves~\n", print_side(opp_side));
+        //fprintf(stderr, "%s has no valid moves~\n", print_side(opp_side));
     }
 
     //--------------find moves------------------//
 
     std::vector<Move> valid_moves = this->valid_moves(board, side, false);
 
-    //--------------base case-------------//
-
-    // in case there arent valid moves, this is faster than using their method
-    // to check first b/c we don't have to iterate through the whole board again
-    if (valid_moves.size() <= 0)
-        return nullptr;
-
+    
     //--------------choosing moves-------------//
 
-    Move best_move = this->choose_move(board, side, valid_moves, 2);
+    Move *best_move = this->choose_move(board, side, valid_moves, 2);
 
     //--------------finish using chosen move-------------//
-
-    // decided on best move! put it in a pointer to be passed
-    Move *final_move = new Move(best_move.getX(), best_move.getY());
     fprintf(stderr, "%s's move: %d %d\n",
-            print_side(side), best_move.getX(), best_move.getY());
+            print_side(side), best_move->getX(), best_move->getY());
 
     //before we return, update the board with our move
-    past_moves.push_back(*final_move);
-    board->doMove(final_move, side);
-    return final_move;
+    past_moves.push_back(*best_move);
+    board->doMove(best_move, side);
+    return best_move;
 }
 
 /*
@@ -143,69 +133,124 @@ std::vector<Move> Player::valid_moves(Board *board, Side side, bool eff) {
  *  iteration level (ply) (not implemented)
  *
  */
-Move Player::choose_move(Board *board, Side side, std::vector<Move> valid_moves, int plys) {
+Move *Player::choose_move(Board *board, Side side, std::vector<Move> valid_moves, int plys) {
 
     Side opp_side = (Side) ((side + 1) % 2);
     Board *next_board;
     Move next_move(0,0);
+    Move *opp_move;
+    std::vector<Move> opp_moves;
     Move best_move = valid_moves[0];
     int best_score = -64;
     int next_score;
 
-    // uses a 2-ply minimax decision tree and the naive heuristic for testing
-    if (minimaxTest)
-    {
-        for (unsigned int k = 0; k < valid_moves.size(); k++)
-        {
+    // if the provided move vector is empty, we can't do anything
+    if (valid_moves.size() <= 0) {
+        return nullptr;
+    }
+
+    // case where we have more layers to search - recurses deeper with plys-1
+    if (plys > 1){
+        for (unsigned int i = 0; i < valid_moves.size(); i++) {
+            // update board copy with new move
             next_board = board->copy();
-            next_move = valid_moves[k];
+            next_move = valid_moves[i];
             next_board->doMove(&next_move, side);
-            next_score = next_board->count(side) - next_board->count(opp_side);
 
-            // generating valid moves for first layer in
-            std::vector<Move> next_valid_moves = 
-                this->valid_moves(next_board, opp_side, false);
+            // find opponent's likely counter move
+            opp_moves = this->valid_moves(next_board, opp_side, false);
+            opp_move = this->choose_move(next_board, opp_side, opp_moves, plys - 1);
 
-            // calculates for second layer
-            for (unsigned int i = 0; i < next_valid_moves.size(); i++)
-            {
-                Board *next_next_board = next_board->copy();
-                Move next_next_move(0,0);
-                next_next_move = next_valid_moves[i];
-                next_next_board->doMove(&next_next_move, opp_side);
-                int next_next_score = next_board->count(opp_side) - next_board->count(side);
-                next_score += next_next_score;
+            if (opp_move == nullptr){
+                // if the opponent can't go, we do our next move (dont get confused)
+                opp_moves = this->valid_moves(next_board, side, false);
+                opp_move = this->choose_move(next_board, side, opp_moves, plys - 1);
+
+                // now score the result of both of our moves
+                next_board->doMove(opp_move, side);
+                next_score = next_board->count(side) - next_board->count(opp_side);
+            
+            } else {
+                // score our move based on outcome of opp's move
+                next_board->doMove(opp_move, opp_side);
+                next_score = next_board->count(side) - next_board->count(opp_side);
             }
-            if (next_score > best_score)
-            {
-                best_move = next_move;
-                best_score = next_score;
-            }
-        } // alternative to 2-ply minimax / naive heuristic (better heuristic?)
-    } else {
-        for (unsigned int k = 0; k < valid_moves.size(); k++){
 
-            // for each valid move, initialize our variables
-            next_board = board->copy();
-            next_move = valid_moves[k];
-            next_board->doMove(&next_move, side);
-            next_score = next_board->count(side) - next_board->count(opp_side);
-
-            // sanity check
-            //fprintf(stderr, "Investigating %d %d ... score: %d\n",
-            //        next_move.getX(), next_move.getY(), next_score);
-
-            // check if we should use the current choice instead of our previous
-            if (next_score > best_score &&
-                next_move.getX() != 1 && next_move.getX() != 6 &&
-                next_move.getY() != 1 && next_move.getY() != 6){
+            // decide if this option is better than any others
+            if (next_score > best_score) {
                 best_move = next_move;
                 best_score = next_score;
             }
         }
-    }
-    return best_move;
+        Move *final_move = new Move(best_move.getX(), best_move.getY());
+        return final_move;
+    // case where this is the last layer to search - two heuristic options
+    } else {
 
+        // uses an in-place 2-ply minimax decision tree and naive heuristic for test
+        if (minimaxTest)
+        {
+            for (unsigned int k = 0; k < valid_moves.size(); k++)
+            {
+                next_board = board->copy();
+                next_move = valid_moves[k];
+                next_board->doMove(&next_move, side);
+                next_score = next_board->count(side) - next_board->count(opp_side);
+    
+                // generating valid moves for first layer in
+                std::vector<Move> next_valid_moves = 
+                    this->valid_moves(next_board, opp_side, false);
+    
+                // calculates for second layer
+                for (unsigned int i = 0; i < next_valid_moves.size(); i++)
+                {
+                    Board *next_next_board = next_board->copy();
+                    Move next_next_move(0,0);
+                    next_next_move = next_valid_moves[i];
+                    next_next_board->doMove(&next_next_move, opp_side);
+                    int next_next_score = next_board->count(opp_side) - next_board->count(side);
+                    next_score += next_next_score;
+                }
+                if (next_score > best_score)
+                {
+                    best_move = next_move;
+                    best_score = next_score;
+                }
+            } 
+        // alternative to static 2-ply minimax / naive heuristic (better heuristic?)
+        } else {
+            for (unsigned int k = 0; k < valid_moves.size(); k++){
+    
+                // for each valid move, initialize our variables
+                next_board = board->copy();
+                next_move = valid_moves[k];
+                int x = next_move.getX(); int y = next_move.getY();
+                next_board->doMove(&next_move, side);
+                
+                // naieve heuristic
+                next_score = next_board->count(side) - next_board->count(opp_side);
+
+                // tune score based on meta strategy checks
+                if (x == y || x + y == 7){
+                    if (x == 0 || x == 7){
+                        next_score *= 10;
+                    } else {
+                        next_score *= 3;
+                    }
+                }
+
+                //fprintf(stderr, "%d %d score: %d\n", x, y, next_score);
+    
+                // check if we should use the current choice instead of our previous
+                if (next_score > best_score){
+                    best_move = next_move;
+                    best_score = next_score;
+                }
+            }
+        }
+        Move *final_move = new Move(best_move.getX(), best_move.getY());
+        return final_move;
+    }
 }
 
 // ------- drafting timing calls -----------------//
