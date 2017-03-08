@@ -198,7 +198,7 @@ Move *Player::choose_move(Board *board, Side side, std::vector<Move> valid_moves
     } else {
 
         // uses an in-place 2-ply minimax decision tree and naive heuristic for test
-        if (minimaxTest)
+        if (false)
         {
             for (unsigned int k = 0; k < valid_moves.size(); k++)
             {
@@ -234,20 +234,20 @@ Move *Player::choose_move(Board *board, Side side, std::vector<Move> valid_moves
                 // for each valid move, initialize our variables
                 next_board = board->copy();
                 next_move = valid_moves[k];
-                //int x = next_move.getX(); int y = next_move.getY();
+                int x = next_move.getX(); int y = next_move.getY();
                 next_board->doMove(&next_move, side);
                 
                 // naieve heuristic
                 next_score = next_board->count(side) - next_board->count(opp_side);
 
-                /*// tune score based on meta strategy checks
+                // tune score based on meta strategy checks
                 if (x == y || x + y == 7){
                     if (x == 0 || x == 7){
                         next_score *= 10;
                     } else {
                         next_score *= 3;
                     }
-                }*/
+                }
     
                 // check if we should use the current choice instead of our previous
                 if (next_score > best_score){
