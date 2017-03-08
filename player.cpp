@@ -52,30 +52,35 @@ Move *Player::doMove(Move *opponentsMove, int msLeft) {
     if (opponentsMove != nullptr){
         board->doMove(opponentsMove, opp_side);
         past_moves.push_back(*opponentsMove);
-        fprintf(stderr, "---------------------------------\n%s's move: %d %d\n",
+        fprintf(stderr, "-----------------------------------\n%s's move: %d %d\n",
                 print_side(opp_side), opponentsMove->getX(), opponentsMove->getY());
     } else {
         fprintf(stderr, "%s has no valid moves~\n", print_side(opp_side));
     }
 
-    //--------------find moves------------------//
+    // display current score
+    fprintf(stderr, "prev score: %s: %d to %s: %d\n", print_side(side), 
+            board->count(side), print_side(opp_side), board->count(opp_side));
+
+    //--------------find moves and choose one------------------//
 
     std::vector<Move> valid_moves = this->valid_moves(board, side, false);
-    fprintf(stderr, "%s:%lu legal moves.\n", print_side(side), valid_moves.size());
-
-    
-    //--------------choosing moves-------------//
-
     Move *best_move = this->choose_move(board, side, valid_moves, 2);
 
-    //--------------finish using chosen move-------------//
+    // display new move, if it's not pass, add it to past moves
     if (best_move != nullptr){
-        fprintf(stderr, "%s's move: %d %d\n-----------------------------------\n",
+        fprintf(stderr, "%s's move: %d %d\n",
                 print_side(side), best_move->getX(), best_move->getY());
         past_moves.push_back(*best_move);
+    } else {
+        fprintf(stderr, "%s has to pass!\n", 
+                print_side(side));
     }
-    //before we return, update the board with our move
+
+    //------------- update board with chosen move! ----------------//
     board->doMove(best_move, side);
+    fprintf(stderr, "new  score:  %s: %d to %s: %d\n-----------------------------------\n", 
+            print_side(side), board->count(side), print_side(opp_side), board->count(opp_side));
     return best_move;
 }
 
