@@ -12,7 +12,7 @@ Player::Player(Side color) {
     // initialize board and side
     board = new Board();
     side = color;
-    
+
     // prepare for quick way of finding valid moves
     for (int q = -1; q < 2; q++) {
         for (int w = -1; w < 2; w++) {
@@ -59,7 +59,7 @@ Move *Player::doMove(Move *opponentsMove, int msLeft) {
     }
 
     // display current score
-    fprintf(stderr, "prev score: %s: %d to %s: %d\n", print_side(side), 
+    fprintf(stderr, "prev score: %s: %d to %s: %d\n", print_side(side),
             board->count(side), print_side(opp_side), board->count(opp_side));
 
     //--------------find moves and choose one------------------//
@@ -73,28 +73,28 @@ Move *Player::doMove(Move *opponentsMove, int msLeft) {
                 print_side(side), best_move->getX(), best_move->getY());
         past_moves.push_back(*best_move);
     } else {
-        fprintf(stderr, "%s has to pass!\n", 
+        fprintf(stderr, "%s has to pass!\n",
                 print_side(side));
     }
 
     //------------- update board with chosen move! ----------------//
     board->doMove(best_move, side);
-    fprintf(stderr, "new  score:  %s: %d to %s: %d\n-----------------------------------\n", 
+    fprintf(stderr, "new  score:  %s: %d to %s: %d\n-----------------------------------\n",
             print_side(side), board->count(side), print_side(opp_side), board->count(opp_side));
     return best_move;
 }
 
 /*
  * @brief provides a list of valid moves
- * 
- *  @in board state to evaluate, side of player to make move 
+ *
+ *  @in board state to evaluate, side of player to make move
  *  eff == false uses basic method instead of fancy efficient method
  *
  */
-std::vector<Move> Player::valid_moves(Board *board, Side side, bool eff) {    
+std::vector<Move> Player::valid_moves(Board *board, Side side, bool eff) {
     Move move(0,0); std::vector<Move> out;
     if (eff){
-        // drafting alternative valid move checker; 
+        // drafting alternative valid move checker;
         // need to resolve going out of range at boundaries
         if (past_moves.size() < 1){
             for (int i = 0; i < 8; i++){
@@ -135,7 +135,7 @@ std::vector<Move> Player::valid_moves(Board *board, Side side, bool eff) {
 
 /*
  *  @brief picks a good move and returns a pointer to it
- * 
+ *
  *  @arguments:
  *  board state, side of player to make move, vector of valid moves
  *  iteration level (ply) (not implemented)
@@ -164,7 +164,7 @@ Move *Player::choose_move(Board *board, Side side, std::vector<Move> valid_moves
             next_board = board->copy();
             next_move = valid_moves[i];
             next_board->doMove(&next_move, side);
-            //fprintf(stderr, "if %s tries %d %d\n", 
+            //fprintf(stderr, "if %s tries %d %d\n",
             //        print_side(side), next_move.getX(), next_move.getY());
 
             // find opponent's likely counter move
@@ -179,7 +179,7 @@ Move *Player::choose_move(Board *board, Side side, std::vector<Move> valid_moves
                 // now score the result of both of our moves
                 next_board->doMove(opp_move, side);
                 next_score = next_board->count(side) - next_board->count(opp_side);
-            
+
             } else {
                 // score our move based on outcome of opp's move
                 next_board->doMove(opp_move, opp_side);
@@ -206,11 +206,11 @@ Move *Player::choose_move(Board *board, Side side, std::vector<Move> valid_moves
                 next_move = valid_moves[k];
                 next_board->doMove(&next_move, side);
                 next_score = next_board->count(side) - next_board->count(opp_side);
-    
+
                 // generating valid moves for first layer in
-                std::vector<Move> next_valid_moves = 
+                std::vector<Move> next_valid_moves =
                     this->valid_moves(next_board, opp_side, false);
-    
+
                 // calculates for second layer
                 for (unsigned int i = 0; i < next_valid_moves.size(); i++)
                 {
@@ -226,17 +226,17 @@ Move *Player::choose_move(Board *board, Side side, std::vector<Move> valid_moves
                     best_move = next_move;
                     best_score = next_score;
                 }
-            } 
+            }
         // alternative to static 2-ply minimax / naive heuristic (better heuristic?)
         } else {
             for (unsigned int k = 0; k < valid_moves.size(); k++){
-    
+
                 // for each valid move, initialize our variables
                 next_board = board->copy();
                 next_move = valid_moves[k];
                 int x = next_move.getX(); int y = next_move.getY();
                 next_board->doMove(&next_move, side);
-                
+
                 // naieve heuristic
                 next_score = next_board->count(side) - next_board->count(opp_side);
 
@@ -248,7 +248,7 @@ Move *Player::choose_move(Board *board, Side side, std::vector<Move> valid_moves
                         next_score *= 3;
                     }
                 }
-    
+
                 // check if we should use the current choice instead of our previous
                 if (next_score > best_score){
                     best_move = next_move;
@@ -257,10 +257,25 @@ Move *Player::choose_move(Board *board, Side side, std::vector<Move> valid_moves
             }
         }
         Move *final_move = new Move(best_move.getX(), best_move.getY());
-        //fprintf(stderr, "%s would pick %d %d\n", 
+        //fprintf(stderr, "%s would pick %d %d\n",
         //        print_side(side), best_move.getX(), best_move.getY());
         return final_move;
     }
+}
+
+/*
+ *  @brief returns the score of the maximizing player based on the current
+*   state of the board
+ *
+ *  @arguments:
+ *  board state, side of maximizing player
+ *
+ */
+int getScore(Board *board, Side side)
+{
+    int score;
+    Side opp_side = (Side) ((side + 1) % 2);
+    score = board->count(side) - board->count(opp_side);
 }
 
 // ------- drafting timing calls -----------------//
