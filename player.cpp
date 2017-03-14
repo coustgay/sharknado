@@ -167,7 +167,8 @@ Move *Player::choose_move(Board *board, Side side, std::vector<Move> valid_moves
         next_move = valid_moves[i];
         next_board->doMove(&next_move, side);
         next_score = -this->alphaBeta(next_board, opp_side, a, b, plys);
-        fprintf(stderr, "a is %d and b is %d\n", a, b);
+        fprintf(stderr, "move: %d %d, a :%d, b: %d, score: %d\n", 
+                next_move.getX(), next_move.getY(), a, b, next_score);
 
         // decide if this option is better than any others
         if (next_score >= best_score) {
@@ -273,11 +274,11 @@ int Player::alphaBeta(Board *board, Side side, int& a, int& b, int plys)
         score = this->getScore(board, side);
         return score;
     }
-    Side opp_side = (Side) ((side + 1) % 2);
+    Side opp_side = opp(side);
+    Move next_move(0,0);
     for (unsigned int i = 0; i < valid_moves.size(); i++)
     {
         Board *next_board = board->copy();
-        Move next_move(0,0);
         next_move = valid_moves[i];
         next_board->doMove(&next_move, side);
         int y = -b;
