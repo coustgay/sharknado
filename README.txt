@@ -20,4 +20,5 @@ time, allowing us to search deeper into the tree and better control the flow of
 the game. Increased efficiency in tandem with the iterative deepening should
 give us a better result than last week. We tried looking at opening books and
 transposition tables but decided we didn't have the time to implement them
-properly.
+properly. Also added in alternate endgame scoring mechanisms and killer moves
+that will capture corners always.

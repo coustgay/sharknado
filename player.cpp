@@ -202,6 +202,14 @@ Move *Player::choose_move(Board *board, Side side, std::vector<Move> valid_moves
         next_board = board->copy();
         next_move = valid_moves[i];
         next_board->doMove(&next_move, side);
+        if ((next_move.getX() == 0 && next_move.getY() == 0) ||
+            (next_move.getX() == 0 && next_move.getY() == 0) ||
+            (next_move.getX() == 0 && next_move.getY() == 0) ||
+            (next_move.getX() == 0 && next_move.getY() == 0))
+            {
+                Move *final_move = new Move(next_move.getX(), next_move.getY());
+                return final_move;
+            }
         next_score = -this->alphaBeta(next_board, opp_side, a, b, plys, end_turn, timeout);
         delete next_board;
         if (difftime(end_turn, time(&now)) <= 0)
@@ -319,6 +327,10 @@ int Player::getScore(Board *board, Side side)
     corner_score = 100 * corner_score / 4;
     near_corner_score = 100 * near_corner_score / 24;
     score = 0.01 * diff_score + 0.06 * moves_score + 0.61 * corner_score + 0.03 * edge_score + 0.29 * near_corner_score;
+    if (total > 50)
+    {
+        score = 0.40 * diff_score + 0.30 * corner_score + 0.1 * edge_score + 0.20 * near_corner_score;
+    }
     return score;
 }
 
