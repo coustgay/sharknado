@@ -46,7 +46,7 @@ Player::~Player() {
  * return nullptr.
  */
 Move *Player::doMove(Move *opponentsMove, int msLeft) {
-     time_t end_turn = time(nullptr) + (time_t) (7000 / 1000);
+     time_t end_turn = time(nullptr) + (time_t) (300. / (64 / 2));
      time_t now;
     // --------------- update opponent's move ----------------- //
     Side opp_side = side == WHITE ? BLACK : WHITE;
@@ -70,7 +70,7 @@ Move *Player::doMove(Move *opponentsMove, int msLeft) {
     best_move = nullptr;
     int plys = 1;
     bool timeout = false;
-    while (difftime(end_turn, time(&now) > 0) && plys < 8)
+    while (difftime(end_turn, time(&now)) > 0 && plys < 8)
     {
         Move *temp_move = this->choose_move(board, side, valid_moves, plys, end_turn, timeout);
         if (!timeout)
