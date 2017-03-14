@@ -252,7 +252,7 @@ Move *Player::choose_move(Board *board, Side side, std::vector<Move> valid_moves
 int Player::getScore(Board *board, Side side)
 {
     int score, board_count, board_opp_count, diff_score;
-    int corner_score = 0, moves_score = 0;
+    int corner_score = 0, moves_score = 0, edge_score = 0, near_corner_score = 0;
     Side opp_side = (Side) ((side + 1) % 2);
     board_count = board->count(side);
     board_opp_count = board->count(opp_side);
@@ -266,6 +266,8 @@ int Player::getScore(Board *board, Side side)
         moves_score = (total_moves.size() - total_opp_moves.size()) / total;
     }
     moves_score *= 100;
+
+    //corner checking
     if (board->checkSquare(side, 0, 0)) corner_score++;
     if (board->checkSquare(side, 0, 7)) corner_score++;
     if (board->checkSquare(side, 7, 0)) corner_score++;
@@ -275,10 +277,49 @@ int Player::getScore(Board *board, Side side)
     if (board->checkSquare(opp_side, 7, 0)) corner_score--;
     if (board->checkSquare(opp_side, 7, 7)) corner_score--;
 
+    // edge checking
+    for (int i = 2; i < 6; i++)
+    {
+        if (board->checkSquare(side, i, 0)) edge_score++;
+        if (board->checkSquare(side, i, 7)) edge_score++;
+        if (board->checkSquare(side, 0, i)) edge_score++;
+        if (board->checkSquare(side, 7, i)) edge_score++;
+        if (board->checkSquare(opp_side, i, 0)) edge_score--;
+        if (board->checkSquare(opp_side, i, 7)) edge_score--;
+        if (board->checkSquare(opp_side, 0, i)) edge_score--;
+        if (board->checkSquare(opp_side, 7, i)) edge_score--;
+    }
+
+    // near corner checking
+    if (board->checkSquare(side, 1, 1)) near_corner_score -= 4;
+    if (board->checkSquare(side, 1, 6)) near_corner_score -= 4;
+    if (board->checkSquare(side, 6, 1)) near_corner_score -= 4;
+    if (board->checkSquare(side, 6, 6)) near_corner_score -= 4;
+    if (board->checkSquare(opp_side, 1, 1)) near_corner_score += 4;
+    if (board->checkSquare(opp_side, 1, 6)) near_corner_score += 4;
+    if (board->checkSquare(opp_side, 6, 1)) near_corner_score += 4;
+    if (board->checkSquare(opp_side, 6, 6)) near_corner_score += 4;
+    if (board->checkSquare(side, 1, 0)) near_corner_score --;
+    if (board->checkSquare(side, 6, 0)) near_corner_score --;
+    if (board->checkSquare(side, 0, 1)) near_corner_score --;
+    if (board->checkSquare(side, 7, 1)) near_corner_score --;
+    if (board->checkSquare(side, 0, 6)) near_corner_score --;
+    if (board->checkSquare(side, 7, 6)) near_corner_score --;
+    if (board->checkSquare(side, 1, 7)) near_corner_score --;
+    if (board->checkSquare(side, 6, 7)) near_corner_score --;
+    if (board->checkSquare(opp_side, 1, 0)) near_corner_score ++;
+    if (board->checkSquare(opp_side, 6, 0)) near_corner_score ++;
+    if (board->checkSquare(opp_side, 0, 1)) near_corner_score ++;
+    if (board->checkSquare(opp_side, 7, 1)) near_corner_score ++;
+    if (board->checkSquare(opp_side, 0, 6)) near_corner_score ++;
+    if (board->checkSquare(opp_side, 7, 6)) near_corner_score ++;
+    if (board->checkSquare(opp_side, 1, 7)) near_corner_score ++;
+    if (board->checkSquare(opp_side, 6, 7)) near_corner_score ++;
+
+    edge_score = 100 * edge_score / 16;
     corner_score = 100 * corner_score / 4;
-
-
-    score = 0.2 * diff_score + 0.4 * moves_score + 0.4 * corner_score;
+    near_corner_score = 100 * near_corner_score / 24;
+    score = 0.05 * diff_score + 0.2 * moves_score + 0.4 * corner_score + 0.2 * edge_score + 0.15 * near_corner_score;
     return score;
 }
 
