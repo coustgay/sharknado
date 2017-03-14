@@ -175,6 +175,8 @@ Move *Player::choose_move(Board *board, Side side, std::vector<Move> valid_moves
             best_score = next_score;
         }
     }
+
+    // give back the move we chose!
     Move *final_move = new Move(best_move.getX(), best_move.getY());
     return final_move;
 }
