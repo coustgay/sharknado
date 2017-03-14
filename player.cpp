@@ -160,89 +160,23 @@ Move *Player::choose_move(Board *board, Side side, std::vector<Move> valid_moves
     int a = -100;
     int b = 100;
 
-    // case where we have more layers to search - recurses deeper with plys-1
-    if (plys > 0)
+    for (unsigned int i = 0; i < valid_moves.size(); i++)
     {
-        for (unsigned int i = 0; i < valid_moves.size(); i++)
-        {
-            // update board copy with new move
-            next_board = board->copy();
-            next_move = valid_moves[i];
-            next_board->doMove(&next_move, side);
-            //fprintf(stderr, "if %s tries %d %d\n",
-            //        print_side(side), next_move.getX(), next_move.getY());
+        // update board copy with new move
+        next_board = board->copy();
+        next_move = valid_moves[i];
+        next_board->doMove(&next_move, side);
 
-            // // find opponent's likely counter move
-            // opp_moves = this->valid_moves(next_board, opp_side, false);
-            // opp_move = this->choose_move(next_board, opp_side, opp_moves, plys - 1);
-            //
-            // if (opp_move == nullptr){
-            //     // if the opponent can't go, we do our next move (dont get confused)
-            //     opp_moves = this->valid_moves(next_board, side, false);
-            //     opp_move = this->choose_move(next_board, side, opp_moves, plys - 1);
-            //
-            //     // now score the result of both of our moves
-            //     next_board->doMove(opp_move, side);
-            //     next_score = next_board->count(side) - next_board->count(opp_side);
-            //
-            // } else {
-            //     // score our move based on outcome of opp's move
-            //     next_board->doMove(opp_move, opp_side);
-            //     next_score = next_board->count(side) - next_board->count(opp_side);
-            // }
+        next_score = this->alphaBeta(next_board, opp_side, a, b, plys);
 
-            next_score = this->alphaBeta(next_board, opp_side, a, b, plys);
-
-            // decide if this option is better than any others
-            if (next_score <= best_score) {
-                best_move = next_move;
-                best_score = next_score;
-            }
+        // decide if this option is better than any others
+        if (next_score <= best_score) {
+            best_move = next_move;
+            best_score = next_score;
         }
-        Move *final_move = new Move(best_move.getX(), best_move.getY());
-        return final_move;
-    // case where this is the last layer to search - two heuristic options
     }
-    else
-    {
-        // uses a heuristic to add a function
-        for (unsigned int k = 0; k < valid_moves.size(); k++)
-        {
-
-            // for each valid move, initialize our variables
-            next_board = board->copy();
-            next_move = valid_moves[k];
-            int x = next_move.getX(); int y = next_move.getY();
-            next_board->doMove(&next_move, side);
-
-            // naieve heuristic
-            next_score = this->getScore(next_board, side);
-
-            // tune score based on meta strategy checks
-            if (x == y || x + y == 7)
-            {
-                if (x == 0 || x == 7)
-                {
-                    next_score *= 10;
-                }
-                else
-                {
-                    next_score *= 3;
-                }
-            }
-
-            // check if we should use the current choice instead of our previous
-            if (next_score > best_score)
-            {
-                best_move = next_move;
-                best_score = next_score;
-            }
-        }
-        Move *final_move = new Move(best_move.getX(), best_move.getY());
-        //fprintf(stderr, "%s would pick %d %d\n",
-        //        print_side(side), best_move.getX(), best_move.getY());
-        return final_move;
-    }
+    Move *final_move = new Move(best_move.getX(), best_move.getY());
+    return final_move;
 }
 
 /*
