@@ -39,7 +39,7 @@ public:
 
     // returns the opposing side from the one provided
     // probably unnecessary if we just calculate it at the start
-    // Side opp(Side side) {return (Side) ((side + 1) % 2);}
+    Side opp(Side side) {Side opp_side = side == WHITE ? BLACK : WHITE;}
 
     // Flag to tell if the player is running within the test_minimax context
     bool minimaxTest;
