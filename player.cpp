@@ -65,8 +65,9 @@ Move *Player::doMove(Move *opponentsMove, int msLeft) {
     //--------------find moves and choose one------------------//
 
     std::vector<Move> valid_moves = this->valid_moves(board, side, false);
-    Move *best_move = this->choose_move(board, side, valid_moves, 2);
-    
+    // Move *best_move = this->choose_move(board, side, valid_moves, 5);
+    Move *best_move = this->alphaBeta(board, side, -65, 65, 5);
+
     // display new move, if it's not pass, add it to past moves
     if (best_move != nullptr){
         fprintf(stderr, "%s's move: %d %d\n",
@@ -279,60 +280,31 @@ int Player::getScore(Board *board, Side side)
     return score;
 }
 
-Move *Player::alphaBeta(Board *board, Side side, int a, int b, int plys)
+int Player::alphaBeta(Board *board, Side side, int a, int b, int plys)
 {
     std::vector<Move> valid_moves = this->valid_moves(board, side, false);
     if (plys == 0 || valid_moves.size() == 0)
     {
-        return nullptr;
+        return this->getScore(board, side);
     }
-    Move *best_move = nullptr;
     Side opp_side = (Side) ((side + 1) % 2);
-    if (side == WHITE)
+    int score;
+    for (int i = 0; i < valid_moves.size(); i++)
     {
-        for (unsigned int i; i < valid_moves.size(); i++)
+        score = -(this->alphaBeta(board, opp_side, -b, -a, plys--));
+        if (score >= b)
         {
-            Board *next_board = board->copy();
-            Move next_move(0,0);
-            next_move = valid_moves[i];
-            next_board->doMove(&next_move, side);
-            Move *moved = alphaBeta(next_board, opp_side, a, b, plys - 1);
-            moved->score = this->getScore(next_board, side);
-            if (moved->score > a)
-            {
-                a = moved->score;
-                best_move = moved;
-            }
-            if (b <= a)
-            {
-                break;
-            }
+            return b;
         }
-        return best_move;
-    }
-    else
-    {
-        for (unsigned int i; i < valid_moves.size(); i++)
+        if (score > a)
         {
-            Board *next_board = board->copy();
-            Move next_move(0,0);
-            next_move = valid_moves[i];
-            next_board->doMove(&next_move, side);
-            Move *moved = alphaBeta(next_board, opp_side, a, b, plys - 1);
-            moved->score = this->getScore(next_board, side);
-            if (moved->score < b)
-            {
-                b = moved->score;
-                best_move = moved;
-            }
-            if (b <= a)
-            {
-                break;
-            }
+            a = score;
         }
-        return best_move;
     }
+    return a;
 }
+
+
 
 // ------- drafting timing calls -----------------//
     // just interested in the timer, I don't think we have to worry about it this week
