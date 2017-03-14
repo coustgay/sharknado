@@ -201,7 +201,6 @@ Move *Player::choose_move(Board *board, Side side, std::vector<Move> valid_moves
     }
     else
     {
-
         // uses an in-place 2-ply minimax decision tree and naive heuristic for test
         for (unsigned int k = 0; k < valid_moves.size(); k++)
         {
@@ -258,10 +257,10 @@ int Player::getScore(Board *board, Side side)
     diff_score *= 100;
     std::vector<Move> total_moves = valid_moves(board, side, false);
     std::vector<Move> total_opp_moves = valid_moves(board, opp_side, false);
-    int total_moves = total_moves.size() + total_opp_moves.size();
-    if (total_moves != 0)
+    int total = total_moves.size() + total_opp_moves.size();
+    if (total != 0)
     {
-        moves_score = (total_moves.size() - total_opp_moves.size()) / total_moves;
+        moves_score = (total_moves.size() - total_opp_moves.size()) / total;
     }
     moves_score *= 100;
     score = 0.2 * diff_score + 0.6 * moves_score;
