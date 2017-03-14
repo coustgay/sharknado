@@ -70,12 +70,14 @@ Move *Player::doMove(Move *opponentsMove, int msLeft) {
     best_move = nullptr;
     int plys = 1;
     bool timeout = false;
-    while (difftime(end_turn, time(&now)) > 0 && plys < 8)
+    while (difftime(end_turn, time(&now)) > 0 && plys < 12)
     {
         Move *temp_move = this->choose_move(board, side, valid_moves, plys, end_turn, timeout);
         if (!timeout)
         {
             best_move = temp_move;
+            fprintf(stderr, "ply: %d, best move: %d %d\n", 
+                plys, best_move->getX(), best_move->getY());
         }
         plys++;
     }
@@ -156,23 +158,26 @@ std::vector<Move> Player::valid_moves(Board *board, Side side, bool eff) {
 Move *Player::choose_move(Board *board, Side side, std::vector<Move> valid_moves, int plys, time_t end_turn, bool& timeout)
 {
     time_t now;
-    Move *default_move = new Move(0,0);
-    if (timeout)
-    {
-        return default_move;
-    }
-    // if the provided move vector is empty, we can't do anything
+     // if the provided move vector is empty, we can't do anything
     if (valid_moves.size() < 1)
     {
         return nullptr;
     }
+
+    //if we're out of time, choose the left most move
+    Move best_move = valid_moves[0];
+    if (timeout)
+    {
+        Move *final_move = new Move(best_move.getX(), best_move.getY());
+        return final_move;
+    }
+   
 
     Side opp_side = this->opp(side);
     Board *next_board = new Board();
     Move next_move(0,0);
     // Move *opp_move;
     // std::vector<Move> opp_moves;
-    Move best_move = valid_moves[0];
     int best_score = -100;
     int next_score;
     int a = -100;
@@ -189,7 +194,7 @@ Move *Player::choose_move(Board *board, Side side, std::vector<Move> valid_moves
         if (difftime(end_turn, time(&now)) <= 0)
         {
             timeout = true;
-            return default_move;
+            break;
         }
 
         // fprintf(stderr, "move: %d %d, a :%d, b: %d, score: %d\n",
@@ -202,6 +207,8 @@ Move *Player::choose_move(Board *board, Side side, std::vector<Move> valid_moves
         }
     }
     // give back the move we chose!
+    fprintf(stderr, "chose move: %d %d with score %d\n", 
+            best_move.getX(), best_move.getY(), best_score );
     Move *final_move = new Move(best_move.getX(), best_move.getY());
     return final_move;
 }
