@@ -141,10 +141,11 @@ std::vector<Move> Player::valid_moves(Board *board, Side side, bool eff) {
  *  iteration level (ply) (not implemented)
  *
  */
-Move *Player::choose_move(Board *board, Side side, std::vector<Move> valid_moves, int plys) {
-
+Move *Player::choose_move(Board *board, Side side, std::vector<Move> valid_moves, int plys)
+{
     // if the provided move vector is empty, we can't do anything
-    if (valid_moves.size() < 1) {
+    if (valid_moves.size() < 1)
+    {
         return nullptr;
     }
 
@@ -158,8 +159,10 @@ Move *Player::choose_move(Board *board, Side side, std::vector<Move> valid_moves
     int next_score;
 
     // case where we have more layers to search - recurses deeper with plys-1
-    if (plys > 1){
-        for (unsigned int i = 0; i < valid_moves.size(); i++) {
+    if (plys > 0)
+    {
+        for (unsigned int i = 0; i < valid_moves.size(); i++)
+        {
             // update board copy with new move
             next_board = board->copy();
             next_move = valid_moves[i];
@@ -195,65 +198,41 @@ Move *Player::choose_move(Board *board, Side side, std::vector<Move> valid_moves
         Move *final_move = new Move(best_move.getX(), best_move.getY());
         return final_move;
     // case where this is the last layer to search - two heuristic options
-    } else {
+    }
+    else
+    {
 
         // uses an in-place 2-ply minimax decision tree and naive heuristic for test
-        if (false)
+        for (unsigned int k = 0; k < valid_moves.size(); k++)
         {
-            for (unsigned int k = 0; k < valid_moves.size(); k++)
+
+            // for each valid move, initialize our variables
+            next_board = board->copy();
+            next_move = valid_moves[k];
+            int x = next_move.getX(); int y = next_move.getY();
+            next_board->doMove(&next_move, side);
+
+            // naieve heuristic
+            next_score = this->getScore(next_board, side);
+
+            // tune score based on meta strategy checks
+            if (x == y || x + y == 7)
             {
-                next_board = board->copy();
-                next_move = valid_moves[k];
-                next_board->doMove(&next_move, side);
-                next_score = next_board->count(side) - next_board->count(opp_side);
-
-                // generating valid moves for first layer in
-                std::vector<Move> next_valid_moves =
-                    this->valid_moves(next_board, opp_side, false);
-
-                // calculates for second layer
-                for (unsigned int i = 0; i < next_valid_moves.size(); i++)
+                if (x == 0 || x == 7)
                 {
-                    Board *next_next_board = next_board->copy();
-                    Move next_next_move(0,0);
-                    next_next_move = next_valid_moves[i];
-                    next_next_board->doMove(&next_next_move, opp_side);
-                    int next_next_score = next_board->count(opp_side) - next_board->count(side);
-                    next_score += next_next_score;
+                    next_score *= 10;
                 }
-                if (next_score > best_score)
+                else
                 {
-                    best_move = next_move;
-                    best_score = next_score;
+                    next_score *= 3;
                 }
             }
-        // alternative to static 2-ply minimax / naive heuristic (better heuristic?)
-        } else {
-            for (unsigned int k = 0; k < valid_moves.size(); k++){
 
-                // for each valid move, initialize our variables
-                next_board = board->copy();
-                next_move = valid_moves[k];
-                int x = next_move.getX(); int y = next_move.getY();
-                next_board->doMove(&next_move, side);
-
-                // naieve heuristic
-                next_score = next_board->count(side) - next_board->count(opp_side);
-
-                // tune score based on meta strategy checks
-                if (x == y || x + y == 7){
-                    if (x == 0 || x == 7){
-                        next_score *= 10;
-                    } else {
-                        next_score *= 3;
-                    }
-                }
-
-                // check if we should use the current choice instead of our previous
-                if (next_score > best_score){
-                    best_move = next_move;
-                    best_score = next_score;
-                }
+            // check if we should use the current choice instead of our previous
+            if (next_score > best_score)
+            {
+                best_move = next_move;
+                best_score = next_score;
             }
         }
         Move *final_move = new Move(best_move.getX(), best_move.getY());
@@ -273,31 +252,40 @@ Move *Player::choose_move(Board *board, Side side, std::vector<Move> valid_moves
  */
 int Player::getScore(Board *board, Side side)
 {
-    int score;
+    int score, diff_score, moves_score = 0;
     Side opp_side = (Side) ((side + 1) % 2);
-    score = board->count(side) - board->count(opp_side);
+    diff_score = (board->count(side) - board->count(opp_side)) / (board->count(side) + board->count(opp_side));
+    diff_score *= 100;
+    int total_moves = (valid_moves(board, side, false).size() + valid_moves(board, opp_side, false)).size());
+    if (total_moves != 0)
+    {
+        moves_score = (valid_moves(board, side, false).size() - valid_moves(board, opp_side, false)).size() / total_moves;
+    }
+    moves_score *= 100;
+    score = 0.2 * diff_score + 0.6 * moves_score;
     return score;
 }
 
 int Player::alphaBeta(Board *board, Side side, int a, int b, int plys)
 {
     std::vector<Move> valid_moves = this->valid_moves(board, side, false);
+    int score;
     if (plys == 0 || valid_moves.size() == 0)
     {
-        return this->getScore(board, side);
+        score = this->getScore(board, side);
+        return score;
     }
     Side opp_side = (Side) ((side + 1) % 2);
-    int score;
     for (unsigned int i = 0; i < valid_moves.size(); i++)
     {
         score = -(this->alphaBeta(board, opp_side, -b, -a, plys--));
-        if (score >= b)
-        {
-            return b;
-        }
         if (score > a)
         {
             a = score;
+        }
+        if (score >= b)
+        {
+            return b;
         }
     }
     return a;
