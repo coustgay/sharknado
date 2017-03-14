@@ -149,11 +149,11 @@ Move *Player::choose_move(Board *board, Side side, std::vector<Move> valid_moves
         return nullptr;
     }
 
-    Side opp_side = (Side) ((side + 1) % 2);
+    Side opp_side = this->opp(side);
     Board *next_board;
     Move next_move(0,0);
-    Move *opp_move;
-    std::vector<Move> opp_moves;
+    // Move *opp_move;
+    // std::vector<Move> opp_moves;
     Move best_move = valid_moves[0];
     int best_score = -64;
     int next_score;
@@ -170,24 +170,26 @@ Move *Player::choose_move(Board *board, Side side, std::vector<Move> valid_moves
             //fprintf(stderr, "if %s tries %d %d\n",
             //        print_side(side), next_move.getX(), next_move.getY());
 
-            // find opponent's likely counter move
-            opp_moves = this->valid_moves(next_board, opp_side, false);
-            opp_move = this->choose_move(next_board, opp_side, opp_moves, plys - 1);
+            // // find opponent's likely counter move
+            // opp_moves = this->valid_moves(next_board, opp_side, false);
+            // opp_move = this->choose_move(next_board, opp_side, opp_moves, plys - 1);
+            //
+            // if (opp_move == nullptr){
+            //     // if the opponent can't go, we do our next move (dont get confused)
+            //     opp_moves = this->valid_moves(next_board, side, false);
+            //     opp_move = this->choose_move(next_board, side, opp_moves, plys - 1);
+            //
+            //     // now score the result of both of our moves
+            //     next_board->doMove(opp_move, side);
+            //     next_score = next_board->count(side) - next_board->count(opp_side);
+            //
+            // } else {
+            //     // score our move based on outcome of opp's move
+            //     next_board->doMove(opp_move, opp_side);
+            //     next_score = next_board->count(side) - next_board->count(opp_side);
+            // }
 
-            if (opp_move == nullptr){
-                // if the opponent can't go, we do our next move (dont get confused)
-                opp_moves = this->valid_moves(next_board, side, false);
-                opp_move = this->choose_move(next_board, side, opp_moves, plys - 1);
-
-                // now score the result of both of our moves
-                next_board->doMove(opp_move, side);
-                next_score = next_board->count(side) - next_board->count(opp_side);
-
-            } else {
-                // score our move based on outcome of opp's move
-                next_board->doMove(opp_move, opp_side);
-                next_score = next_board->count(side) - next_board->count(opp_side);
-            }
+            next_score = this->alphaBeta(board, opp_side, -100, 100, plys);
 
             // decide if this option is better than any others
             if (next_score >= best_score) {
