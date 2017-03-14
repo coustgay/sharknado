@@ -55,7 +55,7 @@ Move *Player::doMove(Move *opponentsMove, int msLeft) {
         fprintf(stderr, "-----------------------------------\n%s's move: %d %d\n",
                 print_side(opp_side), opponentsMove->getX(), opponentsMove->getY());
     } else {
-        fprintf(stderr, "%s has no valid moves~\n", print_side(opp_side));
+        fprintf(stderr, "-----------------------------------\n%s has no valid moves~\n", print_side(opp_side));
     }
 
     // display current score
