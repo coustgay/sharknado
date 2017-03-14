@@ -26,7 +26,7 @@ public:
     // -------------- optimizing move chooser -------------- //
     Move *choose_move(Board *board, Side side, std::vector<Move> valid_moves, int plys);
     int getScore(Board *board, Side side);
-    int alphaBeta(Board *board, Side side, int a, int b, int plys);
+    int alphaBeta(Board *board, Side side, int& a, int& b, int plys);
 
     // returns a string describing the input side object
     const char * print_side(Side side){

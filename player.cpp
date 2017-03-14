@@ -157,7 +157,8 @@ Move *Player::choose_move(Board *board, Side side, std::vector<Move> valid_moves
     Move best_move = valid_moves[0];
     int best_score = -64;
     int next_score;
-    int a = -100, b = 100;
+    int a = -100;
+    int b = 100;
 
     // case where we have more layers to search - recurses deeper with plys-1
     if (plys > 0)
@@ -327,7 +328,7 @@ int Player::getScore(Board *board, Side side)
     return score;
 }
 
-int Player::alphaBeta(Board *board, Side side, int a, int b, int plys)
+int Player::alphaBeta(Board *board, Side side, int& a, int& b, int plys)
 {
     std::vector<Move> valid_moves = this->valid_moves(board, side, false);
     int score;
