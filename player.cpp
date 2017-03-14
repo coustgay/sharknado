@@ -46,7 +46,7 @@ Player::~Player() {
  * return nullptr.
  */
 Move *Player::doMove(Move *opponentsMove, int msLeft) {
-     time_t end_turn = time(nullptr) + (time_t) (5000 / 1000);
+     time_t end_turn = time(nullptr) + (time_t) (7000 / 1000);
      time_t now;
     // --------------- update opponent's move ----------------- //
     Side opp_side = side == WHITE ? BLACK : WHITE;
@@ -192,8 +192,8 @@ Move *Player::choose_move(Board *board, Side side, std::vector<Move> valid_moves
             return default_move;
         }
 
-        fprintf(stderr, "move: %d %d, a :%d, b: %d, score: %d\n",
-                next_move.getX(), next_move.getY(), a, b, next_score);
+        // fprintf(stderr, "move: %d %d, a :%d, b: %d, score: %d\n",
+        //         next_move.getX(), next_move.getY(), a, b, next_score);
 
         // decide if this option is better than any others
         if (next_score >= best_score) {
@@ -220,10 +220,14 @@ int Player::getScore(Board *board, Side side)
     int score, board_count, board_opp_count, diff_score;
     int corner_score = 0, moves_score = 0, edge_score = 0, near_corner_score = 0;
     Side opp_side = opp(side);
+
+    // piece parity checking
     board_count = board->count(side);
     board_opp_count = board->count(opp_side);
     diff_score = (board_count - board_opp_count) / (board_count + board_opp_count);
     diff_score *= 100;
+
+    // mobility checking
     std::vector<Move> total_moves = valid_moves(board, side, false);
     std::vector<Move> total_opp_moves = valid_moves(board, opp_side, false);
     int total = total_moves.size() + total_opp_moves.size();
@@ -285,7 +289,7 @@ int Player::getScore(Board *board, Side side)
     edge_score = 100 * edge_score / 16;
     corner_score = 100 * corner_score / 4;
     near_corner_score = 100 * near_corner_score / 24;
-    score = 0.05 * diff_score + 0.3 * moves_score + 0.3 * corner_score + 0.2 * edge_score + 0.15 * near_corner_score;
+    score = 0.05 * diff_score + 0.3 * moves_score + 0.3 * corner_score + 0.2 * edge_score + 1.95 * near_corner_score;
     return score;
 }
 
