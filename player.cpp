@@ -344,7 +344,9 @@ int Player::alphaBeta(Board *board, Side side, int& a, int& b, int plys)
         Move next_move(0,0);
         next_move = valid_moves[i];
         next_board->doMove(&next_move, side);
-        score = -(this->alphaBeta(next_board, opp_side, -b, -a, plys - 1));
+        int y = -b;
+        int z = -a;
+        score = -(this->alphaBeta(next_board, opp_side, y, z, plys - 1));
         if (score > a)
         {
             a = score;
