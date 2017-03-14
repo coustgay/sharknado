@@ -48,7 +48,7 @@ Player::~Player() {
 Move *Player::doMove(Move *opponentsMove, int msLeft) {
 
     // --------------- update opponent's move ----------------- //
-    Side opp_side = (Side) ((side + 1) % 2);
+    Side opp_side = side == WHITE ? BLACK : WHITE;
     if (opponentsMove != nullptr){
         board->doMove(opponentsMove, opp_side);
         past_moves.push_back(*opponentsMove);
