@@ -237,6 +237,11 @@ int Player::getScore(Board *board, Side side)
     }
     moves_score *= 100;
 
+    if (total == 0)
+    {
+        return diff_score;
+    }
+
     //corner checking
     if (board->checkSquare(side, 0, 0)) corner_score++;
     if (board->checkSquare(side, 0, 7)) corner_score++;
@@ -289,7 +294,7 @@ int Player::getScore(Board *board, Side side)
     edge_score = 100 * edge_score / 16;
     corner_score = 100 * corner_score / 4;
     near_corner_score = 100 * near_corner_score / 24;
-    score = 0.05 * diff_score + 0.3 * moves_score + 0.3 * corner_score + 0.2 * edge_score + 1.95 * near_corner_score;
+    score = 0.05 * diff_score + 0.2 * moves_score + 0.4 * corner_score + 0.2 * edge_score + 0.15 * near_corner_score;
     return score;
 }
 
