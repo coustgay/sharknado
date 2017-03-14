@@ -65,7 +65,7 @@ Move *Player::doMove(Move *opponentsMove, int msLeft) {
     //--------------find moves and choose one------------------//
 
     std::vector<Move> valid_moves = this->valid_moves(board, side, false);
-    Move *best_move = this->choose_move(board, side, valid_moves, 7);
+    Move *best_move = this->choose_move(board, side, valid_moves, 8);
 
     // display new move, if it's not pass, add it to past moves
     if (best_move != nullptr){
@@ -166,8 +166,8 @@ Move *Player::choose_move(Board *board, Side side, std::vector<Move> valid_moves
         next_board = board->copy();
         next_move = valid_moves[i];
         next_board->doMove(&next_move, side);
-        next_score = -this->alphaBeta(next_board, opp_side, a, b, plys);
-        fprintf(stderr, "move: %d %d, a :%d, b: %d, score: %d\n", 
+        next_score = this->alphaBetaMinimax(next_board, opp_side, a, b, plys);
+        fprintf(stderr, "move: %d %d, a :%d, b: %d, score: %d\n",
                 next_move.getX(), next_move.getY(), a, b, next_score);
 
         // decide if this option is better than any others
@@ -307,6 +307,57 @@ int Player::alphaBeta(Board *board, Side side, int& a, int& b, int plys)
     if (side == this->side){
         return a;
     } else {
+        return b;
+    }
+}
+
+int Player::alphaBetaMinimax(Board *board, Side side, int& a, int& b, int plys)
+{
+    std::vector<Move> valid_moves = this->valid_moves(board, side, false);
+    int score;
+    if (plys == 0 || valid_moves.size() == 0)
+    {
+        score = this->getScore(board, side);
+        return score;
+    }
+    Side opp_side = opp(side);
+    Move next_move(0,0);
+    if (side == this->side)
+    {
+        for (unsigned int i; i < valid_moves.size(); i++)
+        {
+            Board *next_board = board->copy();
+            next_move = valid_moves[i];
+            next_board->doMove(&next_move, side);
+            score = alphaBetaMinimax(next_board, opp_side, a, b, plys - 1);
+            if (score >= b)
+            {
+                return b;
+            }
+            if (score > a)
+            {
+                a = score;
+            }
+        }
+        return a;
+    }
+    else
+    {
+        for (unsigned int i; i < valid_moves.size(); i++)
+        {
+            Board *next_board = board->copy();
+            next_move = valid_moves[i];
+            next_board->doMove(&next_move, side);
+            score = alphaBetaMinimax(next_board, opp_side, a, b, plys - 1);
+            if (score <= a)
+            {
+                return a;
+            }
+            if (score < b)
+            {
+                b = score;
+            }
+        }
         return b;
     }
 }
