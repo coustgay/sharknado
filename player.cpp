@@ -251,6 +251,7 @@ Move *Player::choose_move(Board *board, Side side, std::vector<Move> valid_moves
  */
 int Player::getScore(Board *board, Side side)
 {
+    // TODO: add in a way to account for minimizing adjacent squares using the adjacents vector idk
     int score, board_count, board_opp_count, diff_score;
     int corner_score = 0, moves_score = 0, edge_score = 0, near_corner_score = 0;
     Side opp_side = (Side) ((side + 1) % 2);
