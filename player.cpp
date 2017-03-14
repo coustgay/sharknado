@@ -65,8 +65,7 @@ Move *Player::doMove(Move *opponentsMove, int msLeft) {
     //--------------find moves and choose one------------------//
 
     std::vector<Move> valid_moves = this->valid_moves(board, side, false);
-    // Move *best_move = this->choose_move(board, side, valid_moves, 5);
-    Move *best_move = this->alphaBeta(board, side, -65, 65, 5);
+    Move *best_move = this->choose_move(board, side, valid_moves, 5);
 
     // display new move, if it's not pass, add it to past moves
     if (best_move != nullptr){
@@ -289,7 +288,7 @@ int Player::alphaBeta(Board *board, Side side, int a, int b, int plys)
     }
     Side opp_side = (Side) ((side + 1) % 2);
     int score;
-    for (int i = 0; i < valid_moves.size(); i++)
+    for (unsigned int i = 0; i < valid_moves.size(); i++)
     {
         score = -(this->alphaBeta(board, opp_side, -b, -a, plys--));
         if (score >= b)
