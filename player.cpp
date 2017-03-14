@@ -66,13 +66,25 @@ Move *Player::doMove(Move *opponentsMove, int msLeft) {
     //--------------find moves and choose one------------------//
 
     std::vector<Move> valid_moves = this->valid_moves(board, side, false);
+    std::list<Move> ordered_moves;
     Move *best_move = new Move(0,0);
     best_move = nullptr;
     int plys = 1;
     bool timeout = false;
+
+    // iterative deepening to max depth 8
     while (difftime(end_turn, time(&now) > 0) && plys < 8)
     {
-        Move *temp_move = this->choose_move(board, side, valid_moves, plys, end_turn, timeout);
+        // orders the valid_moves vector by bestness of move after 2-ply search
+        if (plys == 3)
+        {
+            for (unsigned int i = 0; i < valid_moves.size(); i++)
+            {
+                valid_moves[i] = ordered_moves.front();
+                ordered_moves.pop_front();
+            }
+        }
+        Move *temp_move = this->choose_move(board, side, valid_moves, ordered_moves, plys, end_turn, timeout);
         if (!timeout)
         {
             best_move = temp_move;
@@ -153,7 +165,7 @@ std::vector<Move> Player::valid_moves(Board *board, Side side, bool eff) {
  *  iteration level (ply) (not implemented)
  *
  */
-Move *Player::choose_move(Board *board, Side side, std::vector<Move> valid_moves, int plys, time_t end_turn, bool& timeout)
+Move *Player::choose_move(Board *board, Side side, std::vector<Move> valid_moves, std::list<Move>& ordered_moves, int plys, time_t end_turn, bool& timeout)
 {
     time_t now;
     Move *default_move = new Move(0,0);
@@ -199,6 +211,10 @@ Move *Player::choose_move(Board *board, Side side, std::vector<Move> valid_moves
         if (next_score >= best_score) {
             best_move = next_move;
             best_score = next_score;
+            if (plys == 2) ordered_moves.push_front(best_move);
+        }
+        else {
+            if (plys == 2) ordered_moves.push_back(next_move);
         }
     }
     // give back the move we chose!
@@ -237,7 +253,7 @@ int Player::getScore(Board *board, Side side)
     }
     moves_score *= 100;
 
-    if (total == 0)
+    if (total <= 1)
     {
         return diff_score;
     }
@@ -294,7 +310,7 @@ int Player::getScore(Board *board, Side side)
     edge_score = 100 * edge_score / 16;
     corner_score = 100 * corner_score / 4;
     near_corner_score = 100 * near_corner_score / 24;
-    score = 0.05 * diff_score + 0.2 * moves_score + 0.4 * corner_score + 0.2 * edge_score + 0.15 * near_corner_score;
+    score = 0.01 * diff_score + 0.06 * moves_score + 0.61 * corner_score + 0.03 * edge_score + 0.29 * near_corner_score;
     return score;
 }
 
