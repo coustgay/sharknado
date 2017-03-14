@@ -336,7 +336,11 @@ int Player::alphaBeta(Board *board, Side side, int a, int b, int plys)
     Side opp_side = (Side) ((side + 1) % 2);
     for (unsigned int i = 0; i < valid_moves.size(); i++)
     {
-        score = -(this->alphaBeta(board, opp_side, -b, -a, plys--));
+        Board *next_board = board->copy();
+        Move next_move(0,0);
+        next_move = valid_moves[i];
+        next_board->doMove(&next_move, side);
+        score = -(this->alphaBeta(next_board, opp_side, -b, -a, plys - 1));
         if (score > a)
         {
             a = score;
