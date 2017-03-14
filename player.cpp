@@ -155,7 +155,7 @@ Move *Player::choose_move(Board *board, Side side, std::vector<Move> valid_moves
     // Move *opp_move;
     // std::vector<Move> opp_moves;
     Move best_move = valid_moves[0];
-    int best_score = 100
+    int best_score = 100;
     int next_score;
     int a = -100;
     int b = 100;
