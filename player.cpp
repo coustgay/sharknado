@@ -256,10 +256,12 @@ int Player::getScore(Board *board, Side side)
     Side opp_side = (Side) ((side + 1) % 2);
     diff_score = (board->count(side) - board->count(opp_side)) / (board->count(side) + board->count(opp_side));
     diff_score *= 100;
-    int total_moves = (valid_moves(board, side, false).size() + valid_moves(board, opp_side, false)).size());
+    std::vector<Move> total_moves = valid_moves(board, side, false);
+    std::vector<Move> total_opp_moves = valid_moves(board, opp_side, false);
+    int total_moves = total_moves.size() + total_opp_moves.size();
     if (total_moves != 0)
     {
-        moves_score = (valid_moves(board, side, false).size() - valid_moves(board, opp_side, false)).size() / total_moves;
+        moves_score = (total_moves.size() - total_opp_moves.size()) / total_moves;
     }
     moves_score *= 100;
     score = 0.2 * diff_score + 0.6 * moves_score;
