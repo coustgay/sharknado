@@ -251,9 +251,11 @@ Move *Player::choose_move(Board *board, Side side, std::vector<Move> valid_moves
  */
 int Player::getScore(Board *board, Side side)
 {
-    int score, diff_score, moves_score = 0;
+    int score, board_count, board_opp_count, diff_score, moves_score = 0;
     Side opp_side = (Side) ((side + 1) % 2);
-    diff_score = (board->count(side) - board->count(opp_side)) / (board->count(side) + board->count(opp_side));
+    board_count = board->count(side);
+    board_opp_count = board->count(opp_side);
+    diff_score = (board_count - board_opp_count) / (board_count + board_opp_count);
     diff_score *= 100;
     std::vector<Move> total_moves = valid_moves(board, side, false);
     std::vector<Move> total_opp_moves = valid_moves(board, opp_side, false);
@@ -263,7 +265,7 @@ int Player::getScore(Board *board, Side side)
         moves_score = (total_moves.size() - total_opp_moves.size()) / total;
     }
     moves_score *= 100;
-    score = 0.2 * diff_score + 0.6 * moves_score;
+    score = 0.2 * diff_score + 0.8 * moves_score;
     return score;
 }
 
