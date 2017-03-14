@@ -192,7 +192,7 @@ Move *Player::choose_move(Board *board, Side side, std::vector<Move> valid_moves
             next_score = this->alphaBeta(board, opp_side, -100, 100, plys);
 
             // decide if this option is better than any others
-            if (next_score >= best_score) {
+            if (next_score <= best_score) {
                 best_move = next_move;
                 best_score = next_score;
             }
