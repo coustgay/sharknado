@@ -167,6 +167,7 @@ Move *Player::choose_move(Board *board, Side side, std::vector<Move> valid_moves
         next_move = valid_moves[i];
         next_board->doMove(&next_move, side);
         next_score = -this->alphaBeta(next_board, opp_side, a, b, plys);
+        fprintf(stderr, "a is %d and b is %d\n", a, b);
 
         // decide if this option is better than any others
         if (next_score >= best_score) {
@@ -259,7 +260,7 @@ int Player::getScore(Board *board, Side side)
     edge_score = 100 * edge_score / 16;
     corner_score = 100 * corner_score / 4;
     near_corner_score = 100 * near_corner_score / 24;
-    score = 0.05 * diff_score + 0.2 * moves_score + 0.4 * corner_score + 0.2 * edge_score + 0.15 * near_corner_score;
+    score = 0.05 * diff_score + 0.3 * moves_score + 0.3 * corner_score + 0.2 * edge_score + 0.15 * near_corner_score;
     return score;
 }
 
