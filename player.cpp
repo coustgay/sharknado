@@ -166,7 +166,6 @@ Move *Player::choose_move(Board *board, Side side, std::vector<Move> valid_moves
         next_board = board->copy();
         next_move = valid_moves[i];
         next_board->doMove(&next_move, side);
-
         next_score = this->alphaBeta(next_board, opp_side, a, b, plys);
 
         // decide if this option is better than any others
