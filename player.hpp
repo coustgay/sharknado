@@ -24,10 +24,9 @@ public:
     std::vector<Move> valid_moves(Board *board, Side side, bool eff);
 
     // -------------- optimizing move chooser -------------- //
-    Move *choose_move(Board *board, Side side, std::vector<Move> valid_moves, int plys);
+    Move *choose_move(Board *board, Side side, std::vector<Move> valid_moves, int plys, time_t end_time, bool& timeout);
     int getScore(Board *board, Side side);
-    int alphaBeta(Board *board, Side side, int& a, int& b, int plys);
-    int alphaBetaMinimax(Board *board, Side side, int& a, int& b, int plys);
+    int alphaBeta(Board *board, Side side, int& a, int& b, int plys, time_t end_time, bool& timeout);
 
     // returns a string describing the input side object
     const char * print_side(Side side){

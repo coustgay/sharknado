@@ -46,7 +46,8 @@ Player::~Player() {
  * return nullptr.
  */
 Move *Player::doMove(Move *opponentsMove, int msLeft) {
-
+     time_t end_turn = time(nullptr) + (time_t) (5000 / 1000);
+     time_t now;
     // --------------- update opponent's move ----------------- //
     Side opp_side = side == WHITE ? BLACK : WHITE;
     if (opponentsMove != nullptr){
@@ -65,8 +66,19 @@ Move *Player::doMove(Move *opponentsMove, int msLeft) {
     //--------------find moves and choose one------------------//
 
     std::vector<Move> valid_moves = this->valid_moves(board, side, false);
-    Move *best_move = this->choose_move(board, side, valid_moves, 8);
-
+    Move *best_move = new Move(0,0);
+    best_move = nullptr;
+    int plys = 1;
+    bool timeout = false;
+    while (difftime(end_turn, time(&now) > 0) && plys < 8)
+    {
+        Move *temp_move = this->choose_move(board, side, valid_moves, plys, end_turn, timeout);
+        if (!timeout)
+        {
+            best_move = temp_move;
+        }
+        plys++;
+    }
     // display new move, if it's not pass, add it to past moves
     if (best_move != nullptr){
         fprintf(stderr, "%s's move: %d %d\n",
@@ -141,8 +153,14 @@ std::vector<Move> Player::valid_moves(Board *board, Side side, bool eff) {
  *  iteration level (ply) (not implemented)
  *
  */
-Move *Player::choose_move(Board *board, Side side, std::vector<Move> valid_moves, int plys)
+Move *Player::choose_move(Board *board, Side side, std::vector<Move> valid_moves, int plys, time_t end_turn, bool& timeout)
 {
+    time_t now;
+    Move *default_move = new Move(0,0);
+    if (timeout)
+    {
+        return default_move;
+    }
     // if the provided move vector is empty, we can't do anything
     if (valid_moves.size() < 1)
     {
@@ -150,7 +168,7 @@ Move *Player::choose_move(Board *board, Side side, std::vector<Move> valid_moves
     }
 
     Side opp_side = this->opp(side);
-    Board *next_board;
+    Board *next_board = new Board();
     Move next_move(0,0);
     // Move *opp_move;
     // std::vector<Move> opp_moves;
@@ -166,17 +184,23 @@ Move *Player::choose_move(Board *board, Side side, std::vector<Move> valid_moves
         next_board = board->copy();
         next_move = valid_moves[i];
         next_board->doMove(&next_move, side);
-        next_score = this->alphaBetaMinimax(next_board, opp_side, a, b, plys);
+        next_score = -this->alphaBeta(next_board, opp_side, a, b, plys, end_turn, timeout);
+        delete next_board;
+        if (difftime(end_turn, time(&now)) <= 0)
+        {
+            timeout = true;
+            return default_move;
+        }
+
         fprintf(stderr, "move: %d %d, a :%d, b: %d, score: %d\n",
                 next_move.getX(), next_move.getY(), a, b, next_score);
 
         // decide if this option is better than any others
-        if (next_score > best_score) {
+        if (next_score >= best_score) {
             best_move = next_move;
             best_score = next_score;
         }
     }
-
     // give back the move we chose!
     Move *final_move = new Move(best_move.getX(), best_move.getY());
     return final_move;
@@ -265,8 +289,19 @@ int Player::getScore(Board *board, Side side)
     return score;
 }
 
-int Player::alphaBeta(Board *board, Side side, int& a, int& b, int plys)
+int Player::alphaBeta(Board *board, Side side, int& a, int& b, int plys, time_t end_turn, bool& timeout)
 {
+    if (timeout)
+    {
+        return 0;
+    }
+    time_t now;
+    if (difftime(end_turn, time(&now)) <= 0)
+    {
+        timeout = true;
+        return 0;
+    }
+
     std::vector<Move> valid_moves = this->valid_moves(board, side, false);
     int score;
     if (plys == 0 || valid_moves.size() == 0)
@@ -283,85 +318,18 @@ int Player::alphaBeta(Board *board, Side side, int& a, int& b, int plys)
         next_board->doMove(&next_move, side);
         int y = -b;
         int z = -a;
-        score = -(this->alphaBeta(next_board, opp_side, y, z, plys - 1));
-        if (side == this->side){
-            if (score > a)
-            {
-                a = score;
-            }
-            if (score >= b)
-            {
-                return b;
-            }
-        } else {
-            if (score < b)
-            {
-                b = score;
-            }
-            if (score <= a)
-            {
-                return a;
-            }
-        }
-    }
-    if (side == this->side){
-        return a;
-    } else {
-        return b;
-    }
-}
-
-int Player::alphaBetaMinimax(Board *board, Side side, int& a, int& b, int plys)
-{
-    std::vector<Move> valid_moves = this->valid_moves(board, side, false);
-    int score;
-    if (plys == 0 || valid_moves.size() == 0)
-    {
-        score = this->getScore(board, side);
-        return score;
-    }
-    Side opp_side = opp(side);
-    Move next_move(0,0);
-    if (side == this->side)
-    {
-        for (unsigned int i; i < valid_moves.size(); i++)
+        score = -(this->alphaBeta(next_board, opp_side, y, z, plys - 1, end_turn, timeout));
+        if (score > a)
         {
-            Board *next_board = board->copy();
-            next_move = valid_moves[i];
-            next_board->doMove(&next_move, side);
-            score = alphaBetaMinimax(next_board, opp_side, a, b, plys - 1);
-            if (score >= b)
-            {
-                return b;
-            }
-            if (score > a)
-            {
-                a = score;
-            }
+            a = score;
         }
-        return a;
-    }
-    else
-    {
-        for (unsigned int i; i < valid_moves.size(); i++)
+        if (score >= b)
         {
-            Board *next_board = board->copy();
-            next_move = valid_moves[i];
-            next_board->doMove(&next_move, side);
-            score = alphaBetaMinimax(next_board, opp_side, a, b, plys - 1);
-            if (score <= a)
-            {
-                return a;
-            }
-            if (score < b)
-            {
-                b = score;
-            }
+            return b;
         }
-        return b;
     }
+    return a;
 }
-
 
 
 // ------- drafting timing calls -----------------//
