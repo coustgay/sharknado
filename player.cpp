@@ -155,7 +155,7 @@ Move *Player::choose_move(Board *board, Side side, std::vector<Move> valid_moves
     // Move *opp_move;
     // std::vector<Move> opp_moves;
     Move best_move = valid_moves[0];
-    int best_score = 100;
+    int best_score = -100;
     int next_score;
     int a = -100;
     int b = 100;
@@ -166,11 +166,10 @@ Move *Player::choose_move(Board *board, Side side, std::vector<Move> valid_moves
         next_board = board->copy();
         next_move = valid_moves[i];
         next_board->doMove(&next_move, side);
-
-        next_score = this->alphaBeta(next_board, opp_side, a, b, plys);
+        next_score = -this->alphaBeta(next_board, opp_side, a, b, plys);
 
         // decide if this option is better than any others
-        if (next_score <= best_score) {
+        if (next_score >= best_score) {
             best_move = next_move;
             best_score = next_score;
         }
