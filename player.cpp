@@ -65,7 +65,7 @@ Move *Player::doMove(Move *opponentsMove, int msLeft) {
     //--------------find moves and choose one------------------//
 
     std::vector<Move> valid_moves = this->valid_moves(board, side, false);
-    Move *best_move = this->choose_move(board, side, valid_moves, 5);
+    Move *best_move = this->choose_move(board, side, valid_moves, 7);
 
     // display new move, if it's not pass, add it to past moves
     if (best_move != nullptr){
@@ -171,7 +171,7 @@ Move *Player::choose_move(Board *board, Side side, std::vector<Move> valid_moves
                 next_move.getX(), next_move.getY(), a, b, next_score);
 
         // decide if this option is better than any others
-        if (next_score >= best_score) {
+        if (next_score > best_score) {
             best_move = next_move;
             best_score = next_score;
         }
@@ -284,16 +284,31 @@ int Player::alphaBeta(Board *board, Side side, int& a, int& b, int plys)
         int y = -b;
         int z = -a;
         score = -(this->alphaBeta(next_board, opp_side, y, z, plys - 1));
-        if (score > a)
-        {
-            a = score;
-        }
-        if (score >= b)
-        {
-            return b;
+        if (side == this->side){
+            if (score > a)
+            {
+                a = score;
+            }
+            if (score >= b)
+            {
+                return b;
+            }
+        } else {
+            if (score < b)
+            {
+                b = score;
+            }
+            if (score <= a)
+            {
+                return a;
+            }
         }
     }
-    return a;
+    if (side == this->side){
+        return a;
+    } else {
+        return b;
+    }
 }
 
 
