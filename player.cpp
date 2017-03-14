@@ -201,7 +201,7 @@ Move *Player::choose_move(Board *board, Side side, std::vector<Move> valid_moves
     }
     else
     {
-        // uses an in-place 2-ply minimax decision tree and naive heuristic for test
+        // uses a heuristic to add a function
         for (unsigned int k = 0; k < valid_moves.size(); k++)
         {
 
