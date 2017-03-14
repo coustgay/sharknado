@@ -52,7 +52,6 @@ Move *Player::doMove(Move *opponentsMove, int msLeft) {
     Side opp_side = side == WHITE ? BLACK : WHITE;
     if (opponentsMove != nullptr){
         board->doMove(opponentsMove, opp_side);
-        past_moves.push_back(*opponentsMove);
         fprintf(stderr, "-----------------------------------\n%s's move: %d %d\n",
                 print_side(opp_side), opponentsMove->getX(), opponentsMove->getY());
     } else {
@@ -98,7 +97,6 @@ Move *Player::doMove(Move *opponentsMove, int msLeft) {
     if (best_move != nullptr){
         fprintf(stderr, "%s's move: %d %d\n",
                 print_side(side), best_move->getX(), best_move->getY());
-        past_moves.push_back(*best_move);
     } else {
         fprintf(stderr, "%s has to pass!\n",
                 print_side(side));
@@ -185,9 +183,7 @@ Move *Player::choose_move(Board *board, Side side, std::vector<Move> valid_moves
         return final_move;
     }
 
-
     Side opp_side = this->opp(side);
-    Board *next_board = new Board();
     Move next_move(0,0);
     // Move *opp_move;
     // std::vector<Move> opp_moves;
@@ -199,7 +195,7 @@ Move *Player::choose_move(Board *board, Side side, std::vector<Move> valid_moves
     for (unsigned int i = 0; i < valid_moves.size(); i++)
     {
         // update board copy with new move
-        next_board = board->copy();
+        Board *next_board = board->copy();
         next_move = valid_moves[i];
         next_board->doMove(&next_move, side);
         if ((next_move.getX() == 0 && next_move.getY() == 0) ||
@@ -211,7 +207,6 @@ Move *Player::choose_move(Board *board, Side side, std::vector<Move> valid_moves
                 return final_move;
             }
         next_score = -this->alphaBeta(next_board, opp_side, a, b, plys, end_turn, timeout);
-        delete next_board;
         if (difftime(end_turn, time(&now)) <= 0)
         {
             timeout = true;
@@ -248,7 +243,6 @@ Move *Player::choose_move(Board *board, Side side, std::vector<Move> valid_moves
  */
 int Player::getScore(Board *board, Side side)
 {
-    // TODO: add in a way to account for minimizing adjacent squares using the adjacents vector idk
     int score, board_count, board_opp_count, diff_score;
     int corner_score = 0, moves_score = 0, edge_score = 0, near_corner_score = 0;
     Side opp_side = opp(side);
@@ -326,8 +320,8 @@ int Player::getScore(Board *board, Side side)
     edge_score = 100 * edge_score / 16;
     corner_score = 100 * corner_score / 4;
     near_corner_score = 100 * near_corner_score / 24;
-    score = 0.01 * diff_score + 0.06 * moves_score + 0.61 * corner_score + 0.03 * edge_score + 0.29 * near_corner_score;
-    if (total > 50)
+    score = 0.1 * diff_score + 0.1 * moves_score + 0.4 * corner_score + 0.2 * edge_score + 0.2 * near_corner_score;
+    if (board_count + board_opp_count > 50)
     {
         score = 0.40 * diff_score + 0.30 * corner_score + 0.1 * edge_score + 0.20 * near_corner_score;
     }
